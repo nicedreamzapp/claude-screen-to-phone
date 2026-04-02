@@ -58,8 +58,12 @@ tell application "System Events"
         keystroke "v" using command down
         delay 2
         key code 36
+        delay 0.5
+        keystroke "m" using command down
     end tell
 end tell
+delay 0.3
+tell application "Brave Browser" to activate
 APPLESCRIPT
 
 [ $? -eq 0 ] && echo "Sent: $SEND_FILE" || { echo "Send failed — check Messages app permissions"; exit 1; }

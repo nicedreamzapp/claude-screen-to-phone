@@ -31,8 +31,12 @@ tell application "System Events"
         keystroke "v" using command down
         delay 0.5
         key code 36
+        delay 0.5
+        keystroke "m" using command down
     end tell
 end tell
+delay 0.3
+tell application "Brave Browser" to activate
 APPLESCRIPT
 
 echo "Sent: $FILE"
