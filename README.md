@@ -82,6 +82,8 @@ bash setup.sh
    📜 imessage-receive.sh       — wait for your reply (polls Messages DB)
    🐍 build_production_video.py — full video editor: silence cut + title card + subtitles
 
+🌐 browser-agent.py              — autonomous browser agent (CDP + MLX/Claude)
+
 📁 studio-record/
    🎬 studio_record.py          — recording app (screen / webcam / PiP)
    📄 requirements.txt          — Python deps
@@ -124,6 +126,33 @@ Raw screen recording
 ```
 
 See `scripts/build_production_video.py` for the full script. Customize title/end cards, branding, subtitle timing — it's all in there.
+
+---
+
+## 🌐 Browser Agent
+
+Autonomous browser agent — Claude controls **Brave** directly via Chrome DevTools Protocol to grab anything from the web before sending it to your phone.
+
+```bash
+# Prerequisites: Brave with remote debugging + MLX server running
+open -a "Brave Browser" --args --remote-debugging-port=9222
+python ~/.local/mlx-native-server/server.py &   # or use cloud Claude
+
+# Run it
+python browser-agent.py "Find a cool article about X and screenshot it"
+```
+
+**Why it's different from normal browser automation:**
+
+Most tools (Playwright, Selenium, MCP) break on news sites because comment widgets and embedded content live inside cross-origin iframes + Shadow DOM. This agent uses raw CDP primitives that bypass all of that:
+
+```
+DOM.getDocument(pierce: true)   → sees through iframes + Shadow DOM
+DOM.focus(nodeId)               → focuses any element regardless of origin
+Input.insertText(text)          → types into anything
+```
+
+**Works with both local AI (Qwen 3.5 122B via MLX) and Claude cloud** — just point it at the right server.
 
 ---
 
