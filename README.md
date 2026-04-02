@@ -6,21 +6,28 @@ Built with love on a Mac. Powered by Claude Code + iMessage + AppleScript magic.
 
 ---
 
-## 💬 Why iMessage — Not Telegram, Not Discord, Not Slack
+## 💬 iMessage — No Extra Apps Required
 
-Every other remote AI control setup out there tells you to install Telegram. Or set up a Discord bot. Or run a webhook. Or sign up for some third-party notification service.
+If you have a Mac and an iPhone, you already have iMessage. It's built in, encrypted, and the app you use every day. This project is a documented, working method for sending text, images, and video from your Mac to your iPhone using nothing but iMessage — no Telegram, no Discord, no third-party services required.
 
-**We said no.**
+### 📎 How file sending actually works
 
-If you have a Mac and an iPhone, you already have iMessage. It's built in. It's encrypted. It's the app you already use every day. You shouldn't have to download anything new just to talk to your own computer.
+Sending file attachments via AppleScript on macOS Sequoia is unreliable with the standard approach. The `send file to buddy` command fails silently — it returns success but the attachment never arrives on the phone.
 
-So we built this entirely on iMessage — and we solved the hard part that everyone else gave up on.
+**The method that works:**
 
-> 🚧 **The problem everyone hit:** macOS Sonoma broke AppleScript file attachments. `send file to buddy` returns success but the attachment never arrives on the phone. Silent failure. Most people saw this and switched to Telegram.
+```
+1. Finder selects the file and copies it  (Cmd+C)
+   → creates the correct clipboard type Messages accepts
+2. open imessage://+1XXXXXXXXXX
+   → opens/focuses the conversation
+3. Cmd+V paste → Enter to send
+   → delivered ✅
+```
 
-> ✅ **What we figured out:** Use Finder's clipboard instead. Finder `Cmd+C` on a file creates the right clipboard type that Messages actually accepts. Then open the conversation via `imessage://`, paste, send. **Text, images, and video — all working, all native iMessage.**
+This works for images and video files. Video files over 95MB are automatically compressed first using Apple's hardware encoder so they fit within iMessage limits.
 
-No third-party apps. No accounts. No monthly fees. Just your phone and your Mac, talking to each other the way Apple intended — except now your AI is on the other end. 🍎
+That's it. No extra apps. No accounts. No monthly fees. 🍎
 
 ---
 
