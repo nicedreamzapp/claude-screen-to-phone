@@ -1,0 +1,9 @@
+# Personal config — never commit this
+config.sh
+
+# macOS
+.DS_Store
+
+# Temp video files
+/tmp/
+*.tmp
