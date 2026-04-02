@@ -6,6 +6,24 @@ Built with love on a Mac. Powered by Claude Code + iMessage + AppleScript magic.
 
 ---
 
+## 💬 Why iMessage — Not Telegram, Not Discord, Not Slack
+
+Every other remote AI control setup out there tells you to install Telegram. Or set up a Discord bot. Or run a webhook. Or sign up for some third-party notification service.
+
+**We said no.**
+
+If you have a Mac and an iPhone, you already have iMessage. It's built in. It's encrypted. It's the app you already use every day. You shouldn't have to download anything new just to talk to your own computer.
+
+So we built this entirely on iMessage — and we solved the hard part that everyone else gave up on.
+
+> 🚧 **The problem everyone hit:** macOS Sonoma broke AppleScript file attachments. `send file to buddy` returns success but the attachment never arrives on the phone. Silent failure. Most people saw this and switched to Telegram.
+
+> ✅ **What we figured out:** Use Finder's clipboard instead. Finder `Cmd+C` on a file creates the right clipboard type that Messages actually accepts. Then open the conversation via `imessage://`, paste, send. **Text, images, and video — all working, all native iMessage.**
+
+No third-party apps. No accounts. No monthly fees. Just your phone and your Mac, talking to each other the way Apple intended — except now your AI is on the other end. 🍎
+
+---
+
 ## 🤯 What This Does
 
 You text Claude. Claude does things on your computer. Claude texts you back — with **receipts**.
