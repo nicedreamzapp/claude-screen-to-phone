@@ -44,7 +44,7 @@ Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no
 - 📱 iPhone with iMessage
 - 🤖 [Claude Code](https://claude.ai/code) installed
 - 🍺 `ffmpeg` — `brew install ffmpeg`
-- 🐍 Python 3 + Pillow — `pip install Pillow`
+- 🐍 Python 3 + deps — `pip install -r studio-record/requirements.txt`
 - ✅ Messages app signed into your Apple ID
 
 ### Setup (60 seconds)
@@ -82,6 +82,12 @@ bash setup.sh
    📜 imessage-receive.sh       — wait for your reply (polls Messages DB)
    🐍 build_production_video.py — full video editor: silence cut + title card + subtitles
 
+📁 studio-record/
+   🎬 studio_record.py          — recording app (screen / webcam / PiP)
+   📄 requirements.txt          — Python deps
+   📄 README.md                 — setup + API docs
+   🖼️  backgrounds/              — 32 virtual backgrounds included
+
 📁 examples/
    🎬 uv-jars-example-output.mp4 — produced with this exact pipeline
 
@@ -118,6 +124,34 @@ Raw screen recording
 ```
 
 See `scripts/build_production_video.py` for the full script. Customize title/end cards, branding, subtitle timing — it's all in there.
+
+---
+
+## 🎬 Studio Record
+
+The repo includes **Studio Record** — a full dark-glass recording app with a built-in HTTP API so Claude can control it autonomously.
+
+```bash
+# Install deps
+cd studio-record && pip install -r requirements.txt
+
+# Download the ML model for background removal
+curl -L -o studio-record/selfie_segmenter.tflite \
+  "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"
+
+# Launch it
+python studio-record/studio_record.py
+```
+
+Once running, Claude can control it:
+```bash
+curl -X POST http://127.0.0.1:17494/start?mode=screen   # 🔴 start recording
+curl -X POST http://127.0.0.1:17494/stop                 # ⏹️  stop + save
+curl http://127.0.0.1:17494/status                       # 📊 check status
+```
+
+**Recording modes:** `screen` | `face` | `screen_face` (PiP)
+**32 virtual backgrounds** included — swap live in the UI 🌅
 
 ---
 
