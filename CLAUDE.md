@@ -7,9 +7,19 @@ Send and receive iMessages to control Claude from your iPhone and send back text
 ### Setup (first time)
 Run `bash setup.sh` and fill in `config.sh` with your phone number before using any of these.
 
-### Send a text message
+### Trigger phrases — toggle mobile mode ON if the user says any of these:
+"turn on imessage", "imessage mode", "text mode", "phone mode", "message mode",
+"mobile mode", "remote mode", "go mobile", "text me", "send to phone", "imessage on"
+
+### Toggle mobile mode on/off
 ```bash
-bash ~/.claude/imessage-send.sh "Your message here"
+bash ~/.claude/imessage-toggle.sh
+```
+Sends a confirmation iMessage and writes/removes `~/.claude/imessage-agent-on` (the flag the statusline reads).
+
+### Send a text message (no reply needed)
+```bash
+bash ~/.claude/imessage-send.sh "Done deploying the new code"
 ```
 
 ### Send an image
@@ -22,14 +32,25 @@ bash ~/.claude/imessage-send-image.sh /path/to/image.png
 bash ~/.claude/imessage-send-video.sh /path/to/video.mp4
 ```
 
-### Toggle mobile mode on/off
+### Ask a Yes / No / Yes-to-All question (waits for reply)
 ```bash
-bash ~/.claude/imessage-toggle.sh
+bash ~/.claude/imessage-ask.sh "Deploy to prod" "All tests pass"
 ```
+Sends a clean two-line message with `→ Yes / Yes to All / No`. Returns one of:
+`YES`, `NO`, `YES_TO_ALL`, `TIMEOUT`, or the user's free-form text reply.
+Once the user replies "Yes to All", a flag file is created and all future
+`imessage-ask.sh` calls auto-return `YES` until you delete `~/.claude/imessage-yesall`.
 
-### Wait for a reply from the phone (polls up to 5 minutes)
+### Ask an open-ended question and wait for reply
 ```bash
-bash ~/.claude/imessage-receive.sh
+bash ~/.claude/imessage-agent.sh "Which color do you want?"
+```
+Same return semantics as `imessage-ask.sh` (yes/no detection + free-form fallback).
+
+### Wait for a reply from the phone without sending anything
+```bash
+bash ~/.claude/imessage-receive.sh         # default timeout 5 min
+bash ~/.claude/imessage-receive.sh 60      # wait up to 60 seconds
 ```
 
 ### Full send → wait → reply loop
@@ -37,6 +58,22 @@ bash ~/.claude/imessage-receive.sh
 2. Immediately run `imessage-receive.sh` to wait for the reply
 3. Process the reply and respond
 4. Repeat until user says "stop" or "quit"
+
+## 📊 Statusline (context bar + agent tag + mobile flag)
+
+`scripts/statusline.sh` is a Claude Code statusline that renders, at the bottom of every session:
+
+```
+[NARRATE] █████░░░░░ 47%  📱 Mobile Mode OFF
+```
+
+- **Agent tag** comes from the `CLAUDE_SESSION_LABEL` env var. Export this from each
+  desktop launcher (e.g. `export CLAUDE_SESSION_LABEL='Llama 70B · Local'`) and add a
+  matching `case` entry in `statusline.sh` to map it to a short tag.
+- **Context bar** is color-tiered: green <40%, cyan 40–69%, yellow 70–89%, red 90%+.
+- **Mobile flag** mirrors the file `imessage-toggle.sh` writes — blue when on, gray when off.
+
+`setup.sh` installs it to `~/.claude/statusline.sh` and wires it into `~/.claude/settings.json` automatically.
 
 ## 🎬 Studio Record (screen recording)
 

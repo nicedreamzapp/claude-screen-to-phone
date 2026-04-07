@@ -35,11 +35,28 @@ CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
 
 for script in imessage-send.sh imessage-send-image.sh imessage-send-video.sh \
-              imessage-toggle.sh imessage-receive.sh; do
+              imessage-toggle.sh imessage-receive.sh imessage-ask.sh \
+              imessage-agent.sh statusline.sh; do
     cp "$REPO_DIR/scripts/$script" "$CLAUDE_DIR/$script"
     chmod +x "$CLAUDE_DIR/$script"
 done
 echo "✅ Scripts installed to ~/.claude/"
+
+# 3b. Wire statusline into Claude Code's settings.json (additive, preserves existing keys)
+SETTINGS="$CLAUDE_DIR/settings.json"
+if command -v jq >/dev/null 2>&1; then
+    if [ -f "$SETTINGS" ]; then
+        TMP=$(mktemp)
+        jq '.statusLine = {"type":"command","command":"bash ~/.claude/statusline.sh"}' \
+            "$SETTINGS" > "$TMP" && mv "$TMP" "$SETTINGS"
+    else
+        echo '{"statusLine":{"type":"command","command":"bash ~/.claude/statusline.sh"}}' \
+            | jq . > "$SETTINGS"
+    fi
+    echo "✅ Statusline wired into ~/.claude/settings.json"
+else
+    echo "⚠️  jq not found — skipped settings.json update. Install with: brew install jq"
+fi
 
 # 4. Copy config to ~/.claude/ so scripts can find it
 cp "$REPO_DIR/config.sh" "$CLAUDE_DIR/screen-to-phone-config.sh"
