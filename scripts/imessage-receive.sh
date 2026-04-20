@@ -1,51 +1,50 @@
 #!/bin/bash
-# Wait for a new iMessage reply from your phone
-# ─────────────────────────────────────────────
-CONFIG="$(dirname "$0")/../config.sh"
-[ ! -f "$CONFIG" ] && CONFIG="$HOME/.claude/screen-to-phone-config.sh"
-if [ ! -f "$CONFIG" ]; then echo "❌ config.sh not found. Run setup.sh first."; exit 1; fi
-source "$CONFIG"
+# Wait for a new iMessage reply from Matt
+# Since phone and Mac share the same Apple ID, ALL messages show as is_from_me=1
+# So we just look for any NEW message after our sent ROWID that isn't our exact sent text
 
 TIMEOUT=${1:-300}
+SINCE_ROWID=${2:-0}
+SENT_TEXT=${3:-""}  # the text WE sent, so we can skip it
 DB="$HOME/Library/Messages/chat.db"
+BUDDY_MATCH="%${APPLE_ID_EMAIL:-$BUDDY}%"
+PHONE_MATCH="%$(echo "$BUDDY" | tr -d '+')%"
 
-# Get ROWID of the most recent incoming message (baseline)
-PHONE_STRIPPED=$(echo "$BUDDY" | tr -d '+')
-SINCE_ROWID=$(sqlite3 "$DB" "
-    SELECT COALESCE(MAX(m.ROWID), 0)
-    FROM message m
-    JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
-    JOIN chat c ON cmj.chat_id = c.ROWID
-    WHERE (c.chat_identifier LIKE '%$APPLE_ID_EMAIL%'
-        OR c.chat_identifier LIKE '%$PHONE_STRIPPED%')
-      AND m.is_from_me = 0
-" 2>/dev/null || echo "0")
+# If no since_rowid given, get the current latest
+if [ "$SINCE_ROWID" = "0" ]; then
+    SINCE_ROWID=$(sqlite3 "$DB" "
+        SELECT COALESCE(MAX(m.ROWID), 0)
+        FROM message m
+        JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
+        JOIN chat c ON cmj.chat_id = c.ROWID
+        WHERE (c.chat_identifier LIKE '$BUDDY_MATCH' OR c.chat_identifier LIKE '$PHONE_MATCH')
+    " 2>/dev/null || echo "0")
+fi
 
-# Poll for new incoming message
+# Poll for new message (any new message that isn't our sent text)
 ELAPSED=0
 while [ $ELAPSED -lt $TIMEOUT ]; do
-    sleep 3
-    ELAPSED=$((ELAPSED + 3))
-
     REPLY=$(sqlite3 "$DB" "
         SELECT m.text
         FROM message m
         JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
         JOIN chat c ON cmj.chat_id = c.ROWID
-        WHERE (c.chat_identifier LIKE '%$APPLE_ID_EMAIL%'
-            OR c.chat_identifier LIKE '%$PHONE_STRIPPED%')
+        WHERE (c.chat_identifier LIKE '$BUDDY_MATCH' OR c.chat_identifier LIKE '$PHONE_MATCH')
           AND m.ROWID > $SINCE_ROWID
-          AND m.is_from_me = 0
           AND m.text IS NOT NULL
           AND m.text != ''
         ORDER BY m.ROWID DESC
         LIMIT 1;
     " 2>/dev/null)
 
-    if [ -n "$REPLY" ]; then
+    # Skip if the reply is exactly what we sent
+    if [ -n "$REPLY" ] && [ "$REPLY" != "$SENT_TEXT" ]; then
         echo "$REPLY"
         exit 0
     fi
+
+    sleep 3
+    ELAPSED=$((ELAPSED + 3))
 done
 
 echo "TIMEOUT"

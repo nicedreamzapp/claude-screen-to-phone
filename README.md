@@ -242,9 +242,21 @@ bash ~/.claude/imessage-send-video.sh /path/to/video.mp4
 ### Wait for reply:
 bash ~/.claude/imessage-receive.sh
 
-### Toggle mobile mode:
+### Toggle mobile mode (starts the background listener):
 bash ~/.claude/imessage-toggle.sh
 ```
+
+### 🎤 Mobile Mode — phone becomes the keyboard
+
+`imessage-toggle.sh` starts a background daemon (`imessage-listener.sh`) that polls `~/Library/Messages/chat.db` every 2 seconds and pastes incoming texts directly into the captured Terminal tab. Double-click a launcher, walk away, text commands from the couch.
+
+- `imessage-startup-lock` — daemon buffers texts until the app finishes starting (no more half-pasted messages)
+- `imessage-ask-active` — `imessage-ask.sh` consumes the next reply for its Y/N prompts instead of the daemon forwarding it
+- Text "stop" from the phone → daemon exits cleanly
+
+### 🧰 Remote building from the phone
+
+The browser agent now has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
 
 ---
 

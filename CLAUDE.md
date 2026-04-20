@@ -59,6 +59,22 @@ bash ~/.claude/imessage-receive.sh 60      # wait up to 60 seconds
 3. Process the reply and respond
 4. Repeat until user says "stop" or "quit"
 
+### 🎤 Mobile Mode — remote-control the Terminal from the phone
+`imessage-toggle.sh` now spawns a background daemon (`imessage-listener.sh`) that polls `chat.db` every 2 seconds and **pastes incoming texts directly into the captured Terminal tab** via AppleScript. That means: you double-click a launcher, walk away, and from that point on your phone is the keyboard.
+
+- Toggle: `bash ~/.claude/imessage-toggle.sh` (captures the current Terminal's TTY, starts the daemon)
+- The daemon honors:
+  - `imessage-startup-lock` — buffer (don't forward) while the launcher's app is still starting up
+  - `imessage-ask-active` — consume the next reply inside `imessage-ask.sh` instead of forwarding it
+- Phone texts "stop" → daemon exits + mobile mode off
+- Icon-based launchers (`📱 Claude Phone.command`, `📱 Gemma Phone.command`) in `launchers/` show the pattern: clean state → capture TTY → start listener → `caffeinate -w $$` → exec the app.
+
+### 🚨 CRITICAL — Phone replies must be SHORT (2-3 lines, max 3 sentences)
+When mobile mode is ON, messages sent back to the phone MUST be scannable at a glance:
+- Hard cap: 3 sentences / 2–3 short lines. No bullet lists, no multi-paragraph output, no code blocks.
+- Templates: `"Done — <one line>. Need anything else?"` / `"Couldn't do X — <reason>. Try Y?"`
+- Long reasoning stays in the Terminal transcript; only the summary ships to the phone.
+
 ## 📊 Statusline (context bar + agent tag + mobile flag)
 
 `scripts/statusline.sh` is a Claude Code statusline that renders, at the bottom of every session:
@@ -93,17 +109,33 @@ curl http://127.0.0.1:17494/status
 
 Recording modes: `screen` | `face` | `screen_face` (picture-in-picture)
 
-## 🌐 Browser Agent
+## 🌐 Browser Agent (general-purpose remote agent)
 
-Autonomous browser control via Chrome DevTools Protocol. Use this to grab content from the web before sending to phone.
+Autonomous agent backed by a local MLX model + Chrome DevTools Protocol. Originally browser-only; now has a much broader tool set so it can be driven from the phone as a real remote-building agent.
 
 ```bash
 # Brave must be running with remote debugging
 open -a "Brave Browser" --args --remote-debugging-port=9222
-
-# Run a task
 python browser-agent.py "Find an article about X and screenshot it"
 ```
+
+### Browser tools
+- `navigate(url)`, `snapshot()`, `click(uid)`, `type_text(uid, text)`, `scroll(direction)`, `js(code)`
+
+### System tools (picked FIRST for code/file/deploy work — don't open a browser for shell tasks)
+- `shell(cmd, timeout?)` — bash in `$HOME`; stdout+stderr returned (truncated)
+- `read_file(path)` — read a text file or list a directory
+- `write_file(path, content)` — overwrite a file (creates parent dirs)
+
+### Phone/media tools (require mobile mode on)
+- `screenshot()` — current Brave tab as PNG, texted to phone
+- `fullscreen_shot()` — full macOS desktop via `screencapture`, texted
+- `send_image(url)` — download + text any image URL (rejects `gstatic` thumbnails + dedupes)
+- `send_video(url)` — same for video
+- `record_start(mode)` / `record_stop()` / `record_status()` — drives Studio Record, auto-texts the `.mp4`
+
+### Auto-notify the phone on task events
+When `~/.claude/imessage-agent-on` exists, `done()`, max-steps, and task failures each send a one-line `imessage-send.sh` update to the phone, so you don't need to watch the terminal.
 
 ## 🎥 Full Pipeline Example
 
