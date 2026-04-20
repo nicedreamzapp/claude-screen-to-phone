@@ -4,6 +4,8 @@
 
 Built with love on a Mac. Powered by Claude Code + iMessage + AppleScript magic. 🧠✨
 
+> 📱 **This is the PHONE piece of a 4-repo local-first ambient-computing stack.** Runs great standalone; pairs beautifully with the brain: **[nicedreamzapp/claude-code-local](https://github.com/nicedreamzapp/claude-code-local)** (local-AI Claude Code) → your phone is the keyboard, the Mac runs everything on-device.
+
 ---
 
 ## 💬 iMessage — No Extra Apps Required
