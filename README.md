@@ -1,10 +1,44 @@
-# 📱 Claude Screen to Phone
+<p align="center">
+  <h1 align="center">📱⚡ Claude Screen to Phone</h1>
+  <p align="center">
+    <strong>Your iPhone is now a keyboard for your Mac.<br>
+    Text a command. The AI builds it. iMessage delivers the receipts.</strong>
+  </p>
+  <p align="center">
+    <a href="https://github.com/nicedreamzapp/claude-screen-to-phone/stargazers"><img src="https://img.shields.io/github/stars/nicedreamzapp/claude-screen-to-phone?style=for-the-badge&logo=github&color=f5c542&labelColor=1f2328" alt="GitHub stars"></a>
+    <a href="#-what-this-does"><img src="https://img.shields.io/badge/📱_iMessage-Native-25D366?style=for-the-badge" alt="iMessage Native"></a>
+    <a href="#-how-it-works"><img src="https://img.shields.io/badge/🔒_Privacy-100%25_Local-success?style=for-the-badge" alt="100% Local"></a>
+    <a href="#-what-this-does"><img src="https://img.shields.io/badge/📸_Sends-Text_·_Images_·_Video-blue?style=for-the-badge" alt="Text · Images · Video"></a>
+    <a href="#-mobile-mode--your-phone-is-the-keyboard"><img src="https://img.shields.io/badge/🎤_Mobile_Mode-Remote_Control-purple?style=for-the-badge" alt="Mobile Mode"></a>
+    <a href="#-quick-start"><img src="https://img.shields.io/badge/⚡_Setup-60_seconds-orange?style=for-the-badge" alt="60-second setup"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/📜_License-MIT-yellow?style=for-the-badge" alt="MIT"></a>
+  </p>
+  <p align="center">
+    <em>Built by <a href="https://x.com/divinetribevape">Matt Macosko</a> in Arcata, CA. Off the screen, still getting work done.</em>
+  </p>
+  <p align="center">
+    <a href="#-the-big-claim">💥 The Claim</a> ·
+    <a href="#-what-this-does">🤯 What It Does</a> ·
+    <a href="#-how-it-works">🏗️ How</a> ·
+    <a href="#-mobile-mode--your-phone-is-the-keyboard">📱 Mobile Mode</a> ·
+    <a href="#-quick-start">⚡ Setup</a> ·
+    <a href="#-the-complete-stack">🧩 The Stack</a>
+  </p>
+</p>
 
-> **Control Claude Code from your iPhone. Get screenshots, screen recordings, and videos sent straight to your Messages app — automatically.**
+---
 
-Built with love on a Mac. Powered by Claude Code + iMessage + AppleScript magic. 🧠✨
+> ## 💥 The Big Claim
+>
+> **You are not chained to your desk anymore.**
+>
+> Text `"pull the latest, run tests, send me a screenshot of the dashboard"` from a Jacuzzi. The Mac does it — locally, privately, with a real AI driving. A minute later your phone buzzes with the results in Messages. No Telegram bot. No $20/mo SaaS. No cloud API reading your commands. Just iMessage, AppleScript, and a bash daemon that turns your iPhone into a full remote for Claude Code.
+>
+> **Free yourself from the chair. Your phone is now the keyboard.** 🛋️📱→💻
 
-> 📱 **This is the PHONE piece of a 4-repo local-first ambient-computing stack.** Runs great standalone; pairs beautifully with the brain: **[nicedreamzapp/claude-code-local](https://github.com/nicedreamzapp/claude-code-local)** (local-AI Claude Code) → your phone is the keyboard, the Mac runs everything on-device.
+---
+
+> 🧩 **Part of a 4-repo local-first ambient-computing stack.** Runs great standalone; wired up with the BRAIN ([`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local)) you get Claude Code with local AI driven from your phone — fully on-device, zero cloud.
 
 ---
 
@@ -43,7 +77,39 @@ You text Claude. Claude does things on your computer. Claude texts you back — 
 | "screen record what you're doing" | Records the screen | 🎥 Video in iMessage |
 | "summarize that YouTube video" | Watches + summarizes | 📝 Text reply |
 | "make me a highlight reel" | Edits + compresses | 🎬 Produced video |
+| "pull the repo and run tests" | Shell + git + reports | 💬 Pass/fail summary |
 | "go find X and send it to me" | Browses + captures | 📦 Whatever you asked for |
+
+---
+
+## 📱 Mobile Mode — Your Phone Is the Keyboard
+
+**This is the part that flips the whole thing around.** Toggle mobile mode on and a background daemon (`imessage-listener.sh`) starts watching `~/Library/Messages/chat.db` every two seconds. When a text arrives from your phone, it gets pasted **directly into the Terminal tab** where Claude Code (or the browser agent) is running — as if you typed it yourself. Claude replies? A short summary comes back to your phone via `imessage-send.sh`.
+
+```
+        🛋️  COUCH / JACUZZI / ANYWHERE                🖥️  DESK (ASLEEP BEHIND YOU)
+                      │                                         │
+                      │  "commit the changes and push"          │
+                      ▼                                         │
+              📱 iPhone iMessage   ───────────────────────►  💻 Mac (awake — caffeinated)
+                      ▲                                         │
+                      │                                         ├── listener.sh reads chat.db
+                      │                                         ├── pastes into Claude Code
+                      │                                         ├── Claude runs git add/commit/push
+                      │                                         │   + shell + edit + MCP tools
+                      │  "✅ pushed to main (7 files)"          ├── texts the summary back
+                      └─────────────────────────────────────────┘
+```
+
+**Short-reply contract:** phone replies are capped at 3 sentences so you can read them at a glance. The Terminal keeps the long transcript.
+
+**Turn it on, walk away:**
+```bash
+bash ~/.claude/imessage-toggle.sh        # captures THIS Terminal tab as the target
+# from here: your phone is the keyboard. text "stop" from the phone to turn it off.
+```
+
+Pre-built launchers (`📱 Claude Phone.command`, `📱 Gemma Phone.command`) do the whole dance in one double-click: clear stale state → capture TTY → start listener → `caffeinate -w $$` so the Mac won't sleep → exec Claude Code (or the browser agent) with `--dangerously-skip-permissions` so no trust prompts block remote use.
 
 ---
 
@@ -284,6 +350,26 @@ The browser agent now has **general-purpose tools** (`shell`, `read_file`, `writ
 
 **Receive script times out immediately?**
 → Double-check `BUDDY` and `APPLE_ID_EMAIL` in `config.sh` match what's in your Messages conversations.
+
+---
+
+## 🧩 The Complete Stack
+
+`claude-screen-to-phone` is the **phone piece**. Pairs with three sibling repos for the full ambient-computing setup — each stands alone, no mouse-scroll table needed:
+
+#### 📱 claude-screen-to-phone — **Remote** *(you are here)*
+Your iPhone becomes a full Claude Code terminal. Text any command — git ops, shell, file edits, deploys, web scraping, anything Claude can do — and get results back in Messages. Text, screenshots, screen recordings, produced videos, all of it.
+
+#### 🤖 [claude-code-local](https://github.com/nicedreamzapp/claude-code-local) — **Brain**
+Claude Code running on local AI (Gemma 31B / Llama 70B / Qwen 122B). Zero cloud, 65 tok/s on Apple Silicon.
+
+#### 🎤 [NarrateClaude](https://github.com/nicedreamzapp/NarrateClaude) — **Ears + Mouth**
+Talk to Claude, hear replies in your cloned voice. Fully on-device hands-free loop.
+
+#### 🌐 [browser-agent](https://github.com/nicedreamzapp/browser-agent) — **Hands**
+Drives Brave via Chrome DevTools Protocol. Handles iframes, Shadow DOM, ProseMirror.
+
+**Pair this repo with the brain** ([`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local)) and you get local-AI Claude Code driven from your phone — fully on-device, zero cloud latency, zero API fees.
 
 ---
 
