@@ -26,6 +26,27 @@
   </p>
 </p>
 
+**In one sentence:** a set of macOS bash, AppleScript and Python scripts that let you text commands from your iPhone into a Claude Code session on your Mac and get text, images and video back in iMessage.
+
+**Proof in the repo:** the working scripts are all here ([`scripts/`](scripts/), [`browser-agent.py`](browser-agent.py), [`studio-record/`](studio-record/)). There is no demo video, screenshot or test suite checked in yet, and it only runs on a Mac with Messages signed in.
+
+---
+
+## 🛠️ What I Built
+
+Everything below was written by **Matt Macosko**. The upstream pieces it stands on are listed after.
+
+- 📨 **iMessage send scripts** that land text, images and video in one thread: [`imessage-send.sh`](scripts/imessage-send.sh), [`imessage-send-image.sh`](scripts/imessage-send-image.sh), [`imessage-send-video.sh`](scripts/imessage-send-video.sh) (auto-compresses over 95MB with `h264_videotoolbox`)
+- 📥 **Reply readers** that poll the local Messages database: [`imessage-receive.sh`](scripts/imessage-receive.sh), plus Yes / Yes to All / No prompts in [`imessage-ask.sh`](scripts/imessage-ask.sh) and [`imessage-agent.sh`](scripts/imessage-agent.sh)
+- 📱 **Mobile Mode daemon** that pastes phone texts into a chosen Terminal tab: [`imessage-listener.sh`](scripts/imessage-listener.sh), started and stopped by [`imessage-toggle.sh`](scripts/imessage-toggle.sh)
+- 📊 **Claude Code statusline** with a context bar and mobile-mode flag: [`statusline.sh`](scripts/statusline.sh)
+- 🌐 **Browser + shell agent** over raw Chrome DevTools Protocol with phone/media tools: [`browser-agent.py`](browser-agent.py)
+- 🎬 **Studio Record**, a screen/webcam recorder with an HTTP API on port 17494: [`studio-record/studio_record.py`](studio-record/studio_record.py)
+- 🎞️ **Video production script** (title card, silence cut, subtitles, end card): [`build_production_video.py`](scripts/build_production_video.py)
+- ⚙️ **Installer**: [`setup.sh`](setup.sh) and [`config.example.sh`](config.example.sh)
+
+**Upstream, not mine:** [Claude Code](https://claude.ai/code) (Anthropic), Messages + AppleScript (Apple), Chrome DevTools Protocol (Chromium), `ffmpeg`, MediaPipe's selfie segmenter model (Google), `customtkinter`, Flask, OpenCV, Pillow, and whichever local MLX model you point the browser agent at. See [CREDITS.md](CREDITS.md).
+
 ---
 
 > ## 💥 The Big Claim
@@ -35,6 +56,8 @@
 > Text `"pull the latest, run tests, send me a screenshot of the dashboard"` from a Jacuzzi. The Mac does it — locally, privately, with a real AI driving. A minute later your phone buzzes with the results in Messages. No Telegram bot. No $20/mo SaaS. No cloud API reading your commands. Just iMessage, AppleScript, and a bash daemon that turns your iPhone into a full remote for Claude Code.
 >
 > **Free yourself from the chair. Your phone is now the keyboard.** 🛋️📱→💻
+>
+> *Honest fine print: the phone-to-Mac bridge runs on your Mac with no server of its own, but iMessage itself travels through Apple, and stock Claude Code sends your prompts to Anthropic's API. For a fully on-device brain, pair it with [`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local).*
 
 ---
 
@@ -61,7 +84,7 @@ Sending file attachments via AppleScript on macOS Sequoia is unreliable with the
    → delivered ✅
 ```
 
-This works for images and video files. Video files over 95MB are automatically compressed first using Apple's hardware encoder so they fit within iMessage limits.
+Video uses this Finder copy method ([`imessage-send-video.sh`](scripts/imessage-send-video.sh)). Images skip Finder and load the file straight onto the clipboard as PNG/JPEG/GIF data, then paste the same way ([`imessage-send-image.sh`](scripts/imessage-send-image.sh)). Video files over 95MB are automatically compressed first using Apple's hardware encoder so they fit within iMessage limits.
 
 That's it. No extra apps. No accounts. No monthly fees. 🍎
 
@@ -75,8 +98,7 @@ You text Claude. Claude does things on your computer. Claude texts you back — 
 |---|---|---|
 | "grab me that article image" | Screenshots the image | 📸 Photo in iMessage |
 | "screen record what you're doing" | Records the screen | 🎥 Video in iMessage |
-| "summarize that YouTube video" | Watches + summarizes | 📝 Text reply |
-| "make me a highlight reel" | Edits + compresses | 🎬 Produced video |
+| "make me a highlight reel" | Edits (template script) + compresses | 🎬 Produced video |
 | "pull the repo and run tests" | Shell + git + reports | 💬 Pass/fail summary |
 | "go find X and send it to me" | Browses + captures | 📦 Whatever you asked for |
 
@@ -109,7 +131,7 @@ bash ~/.claude/imessage-toggle.sh        # captures THIS Terminal tab as the tar
 # from here: your phone is the keyboard. text "stop" from the phone to turn it off.
 ```
 
-Pre-built launchers (`📱 Claude Phone.command`, `📱 Gemma Phone.command`) do the whole dance in one double-click: clear stale state → capture TTY → start listener → `caffeinate -w $$` so the Mac won't sleep → exec Claude Code (or the browser agent) with `--dangerously-skip-permissions` so no trust prompts block remote use.
+Double-click launchers (`📱 Claude Phone.command`, `📱 Gemma Phone.command`) are how I run it day to day. **They are not in this repo yet**, so the one-command toggle above is the supported path. The launchers do the whole dance in one double-click: clear stale state → capture TTY → start listener → `caffeinate -w $$` so the Mac won't sleep → exec Claude Code (or the browser agent) with `--dangerously-skip-permissions` so no trust prompts block remote use.
 
 ---
 
@@ -126,7 +148,7 @@ Your Mac 💻 (Claude Code running)
      └── sends result back → text / image / video
 ```
 
-Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no server, no API, no internet middleman. 100% local. 🔒
+Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no server, no API, no internet middleman. 100% local. 🔒 (The bridge is local. The messages themselves still ride Apple's iMessage service, and the AI is whatever runs in your Terminal.)
 
 ---
 
@@ -136,8 +158,10 @@ Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no
 - 🍎 Mac (macOS 12+)
 - 📱 iPhone with iMessage
 - 🤖 [Claude Code](https://claude.ai/code) installed
-- 🍺 `ffmpeg` — `brew install ffmpeg`
-- 🐍 Python 3 + deps — `pip install -r studio-record/requirements.txt`
+- 🍺 `ffmpeg` — `brew install ffmpeg` (needed for video compression)
+- 🧾 `jq` (optional): `brew install jq`, so `setup.sh` can wire the statusline into `~/.claude/settings.json`
+- 🐍 Python 3 + deps — `pip install -r studio-record/requirements.txt` (only for Studio Record)
+- 🖥️ Apple's **Terminal.app** for Mobile Mode (the daemon finds the tab by its TTY through Terminal's AppleScript; iTerm and others are not supported)
 - ✅ Messages app signed into your Apple ID
 
 ### Setup (60 seconds)
@@ -154,13 +178,19 @@ bash setup.sh
 nano config.sh
 #   → Set BUDDY to your iPhone number (+15551234567)
 #   → Set APPLE_ID_EMAIL to your Apple ID
+#   → Check FFMPEG points at your ffmpeg (run: which ffmpeg)
 
-# 4. Run setup again to install
+# 4. Run setup again to install scripts + config into ~/.claude/
 bash setup.sh
 
-# 5. Test it
+# 5. Mobile Mode only: setup.sh does not copy the listener yet, so copy it by hand
+cp scripts/imessage-listener.sh ~/.claude/
+
+# 6. Test it
 ~/.claude/imessage-send.sh "Hello from Claude! 👋"
 ```
+
+Then grant the [permissions below](#-permissions-youll-need). The first send will fail until Accessibility is allowed.
 
 ---
 
@@ -172,8 +202,12 @@ bash setup.sh
    📜 imessage-send-image.sh    — send an image (PNG/JPG/GIF)
    📜 imessage-send-video.sh    — send a video (auto-compresses if >95MB)
    📜 imessage-toggle.sh        — toggle mobile mode on/off
+   📜 imessage-listener.sh      - Mobile Mode daemon (forwards texts into Terminal)
    📜 imessage-receive.sh       — wait for your reply (polls Messages DB)
-   🐍 build_production_video.py — full video editor: silence cut + title card + subtitles
+   📜 imessage-ask.sh           - Yes / Yes to All / No question, waits for reply
+   📜 imessage-agent.sh         - open question, waits for reply
+   📜 statusline.sh             - Claude Code statusline (context bar + mobile flag)
+   🐍 build_production_video.py - video editor template: title card + silence cut + subtitles + end card
 
 🌐 browser-agent.py              — autonomous browser agent (CDP + MLX/Claude)
 
@@ -182,9 +216,6 @@ bash setup.sh
    📄 requirements.txt          — Python deps
    📄 README.md                 — setup + API docs
    🖼️  backgrounds/              — 32 virtual backgrounds included
-
-📁 examples/
-   🎬 uv-jars-example-output.mp4 — produced with this exact pipeline
 
 📄 config.example.sh            — your personal settings template
 📄 setup.sh                     — one-command installer
@@ -200,25 +231,28 @@ Claude can build **fully produced videos** from raw screen recordings and send t
 Raw screen recording
        │
        ▼
-✂️  Silence cut (keeps only the good parts)
+🗣️  Intro voiceover (local TTS server)
        │
        ▼
 🎨  Title card rendered (Pillow — Navy + Cyan style)
        │
        ▼
-📝  Subtitles overlaid (timed to speech)
+✂️  Silence cut (keeps only the good parts)
        │
        ▼
-🏁  End card added
+📝  Subtitles overlaid (hand-timed per sentence)
        │
        ▼
-🗜️  Compressed to <95MB for iMessage
+🏁  End card added, all three parts joined
        │
        ▼
-📲  Sent to your iPhone
+🗜️  Compressed to <95MB for iMessage   ← imessage-send-video.sh
+       │
+       ▼
+📲  Sent to your iPhone                ← imessage-send-video.sh
 ```
 
-See `scripts/build_production_video.py` for the full script. Customize title/end cards, branding, subtitle timing — it's all in there.
+See `scripts/build_production_video.py` for the full script. Customize title/end cards, branding, subtitle timing — it's all in there. **Heads up:** it is a template from one real clip. The input/output paths, keep-segments and subtitle lines are hard-coded at the top, so edit them before running. It does not detect silence or transcribe speech on its own.
 
 ---
 
@@ -227,9 +261,13 @@ See `scripts/build_production_video.py` for the full script. Customize title/end
 Autonomous browser agent — Claude controls **Brave** directly via Chrome DevTools Protocol to grab anything from the web before sending it to your phone.
 
 ```bash
-# Prerequisites: Brave with remote debugging + MLX server running
+# Prerequisites: Brave with remote debugging + a model server running
 open -a "Brave Browser" --args --remote-debugging-port=9222
-python ~/.local/mlx-native-server/server.py &   # or use cloud Claude
+# The agent POSTs Anthropic-style requests to $MLX_URL/v1/messages
+# (default http://localhost:4000). That server is NOT included in this repo.
+export MLX_URL=http://localhost:4000      # optional, this is the default
+export MLX_MODEL_NAME=your-model-name     # optional
+pip install websockets
 
 # Run it
 python browser-agent.py "Find a cool article about X and screenshot it"
@@ -245,7 +283,7 @@ DOM.focus(nodeId)               → focuses any element regardless of origin
 Input.insertText(text)          → types into anything
 ```
 
-**Works with both local AI (Qwen 3.5 122B via MLX) and Claude cloud** — just point it at the right server.
+**Built against local AI (Qwen 3.5 122B via MLX).** It sends no API key header, so pointing it straight at Anthropic's cloud API does not work yet. It needs a local server (or a proxy that adds auth) speaking the Messages API.
 
 ---
 
@@ -257,8 +295,12 @@ The repo includes **Studio Record** — a full dark-glass recording app with a b
 # Install deps
 cd studio-record && pip install -r requirements.txt
 
+# The app looks for its model, backgrounds and output in ~/Desktop/Screen Recordings/
+mkdir -p ~/Desktop/Screen\ Recordings/backgrounds
+cp studio-record/backgrounds/* ~/Desktop/Screen\ Recordings/backgrounds/
+
 # Download the ML model for background removal
-curl -L -o studio-record/selfie_segmenter.tflite \
+curl -L -o ~/Desktop/Screen\ Recordings/selfie_segmenter.tflite \
   "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"
 
 # Launch it
@@ -310,6 +352,9 @@ bash ~/.claude/imessage-send-video.sh /path/to/video.mp4
 ### Wait for reply:
 bash ~/.claude/imessage-receive.sh
 
+### Ask Yes / Yes to All / No:
+bash ~/.claude/imessage-ask.sh "Deploy to prod" "All tests pass"
+
 ### Toggle mobile mode (starts the background listener):
 bash ~/.claude/imessage-toggle.sh
 ```
@@ -324,7 +369,7 @@ bash ~/.claude/imessage-toggle.sh
 
 ### 🧰 Remote building from the phone
 
-The browser agent now has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
+The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
 
 ---
 
@@ -348,8 +393,23 @@ The browser agent now has **general-purpose tools** (`shell`, `read_file`, `writ
 **`chat.db` permission denied?**
 → Grant Full Disk Access to Terminal (or your Claude Code app).
 
-**Receive script times out immediately?**
-→ Double-check `BUDDY` and `APPLE_ID_EMAIL` in `config.sh` match what's in your Messages conversations.
+**Receive script times out, or picks up a text from the wrong chat?**
+→ Double-check `BUDDY` and `APPLE_ID_EMAIL` in `config.sh` match what's in your Messages conversations. Note that `imessage-receive.sh` and `imessage-agent.sh` do not load `config.sh` themselves, so when run on their own they watch every conversation. Export `BUDDY` and `APPLE_ID_EMAIL` in your shell to narrow them. (`imessage-ask.sh` and the listener do load it.)
+
+**Mobile Mode says ON but nothing gets forwarded?**
+→ Check `/tmp/imessage-listener.log`. If it says the listener is missing, copy `scripts/imessage-listener.sh` into `~/.claude/` (step 5 of Setup).
+
+---
+
+## 🚧 Known Limits
+
+- 🍎 macOS only, and Mobile Mode only drives Apple's Terminal.app.
+- 📦 `setup.sh` does not install `imessage-listener.sh` yet (manual copy, see Setup).
+- 🚀 The double-click launchers mentioned above are not in the repo.
+- 🎞️ `build_production_video.py` is a hard-coded template, not a general editor.
+- 🌐 The browser agent needs a Messages-API-compatible model server that this repo does not ship, and it sends no API key.
+- 🎥 `imessage-send-video.sh` brings Brave Browser to the front when it finishes.
+- 🧪 No automated tests. Everything drives real macOS apps, so it was tested by hand.
 
 ---
 
@@ -375,7 +435,7 @@ Drives Brave via Chrome DevTools Protocol. Handles iframes, Shadow DOM, ProseMir
 
 ## 🙌 Credit
 
-Built by **[@nicedreamzapps](https://github.com/nicedreamzapp)** using Claude Code.
+Built by **Matt Macosko ([@nicedreamzapp](https://github.com/nicedreamzapp))** using Claude Code.
 
 > *"I built this because I wanted Claude to be my assistant even when I'm away from my computer — and I wanted receipts."* 📲
 
