@@ -26,6 +26,8 @@
   </p>
 </p>
 
+I wrote these scripts so I can text my Mac from my iPhone and have Claude Code do the work while I'm away from my desk. It's for people who already use Claude Code on a Mac and want to drive it, and get text, images and video back, through iMessage.
+
 **In one sentence:** a set of macOS bash, AppleScript and Python scripts that let you text commands from your iPhone into a Claude Code session on your Mac and get text, images and video back in iMessage.
 
 **Proof in the repo:** the working scripts are all here ([`scripts/`](scripts/), [`browser-agent.py`](browser-agent.py), [`studio-record/`](studio-record/)). There is no demo video, screenshot or test suite checked in yet, and it only runs on a Mac with Messages signed in.
@@ -161,6 +163,7 @@ Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no
 - 🍺 `ffmpeg` — `brew install ffmpeg` (needed for video compression)
 - 🧾 `jq` (optional): `brew install jq`, so `setup.sh` can wire the statusline into `~/.claude/settings.json`
 - 🐍 Python 3 + deps — `pip install -r studio-record/requirements.txt` (only for Studio Record)
+- 🌐 For the browser agent only: Python 3 and `pip install websockets`, plus Brave and a model server (see Browser Agent below)
 - 🖥️ Apple's **Terminal.app** for Mobile Mode (the daemon finds the tab by its TTY through Terminal's AppleScript; iTerm and others are not supported)
 - ✅ Messages app signed into your Apple ID
 
