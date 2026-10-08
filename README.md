@@ -14,7 +14,7 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/📜_License-MIT-yellow?style=for-the-badge" alt="MIT"></a>
   </p>
   <p align="center">
-    <em>Built by <a href="https://x.com/divinetribevape">Matt Macosko</a> in Arcata, CA. Off the screen, still getting work done.</em>
+    <em>Built by <a href="https://x.com/divinetribevape">Matt Macosko</a> in Humboldt, CA. Off the screen, still getting work done.</em>
   </p>
   <p align="center">
     <a href="#-the-big-claim">💥 The Claim</a> ·
