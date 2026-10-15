@@ -1,0 +1,67 @@
+site_name: Claude Screen to Phone
+site_description: >-
+  Text your Mac from your iPhone and have Claude Code do the work. macOS bash,
+  AppleScript and Python scripts that send text, images and video back over iMessage.
+# TODO-VERIFY: placeholder until GitHub Pages is turned on for this repo.
+site_url: https://nicedreamzapp.github.io/claude-screen-to-phone/
+repo_url: https://github.com/nicedreamzapp/claude-screen-to-phone
+repo_name: nicedreamzapp/claude-screen-to-phone
+edit_uri: edit/main/docs/
+copyright: MIT License. Copyright (c) Matt Macosko.
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    logo: material/cellphone-message
+    repo: fontawesome/brands/github
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+  - social
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Quickstart: quickstart.md
+  - Configuration: configuration.md
+  - How it works: how-it-works.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
+  - Credits: credits.md
