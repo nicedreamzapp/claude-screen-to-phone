@@ -26,13 +26,17 @@
   </p>
 </p>
 
+<a id="s1"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-banner.svg" width="100%" alt="01. The idea. Text your Mac, get receipts back"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-r1.svg" width="100%" alt="Text a command. From your iPhone into Claude Code on your Mac. Receipts back. Text, images and video arrive in iMessage. Plain scripts. macOS bash, AppleScript and Python."></picture>
+
+<a id="-the-big-claim"></a>
 I wrote these scripts so I can text my Mac from my iPhone and have Claude Code do the work while I'm away from my desk. It's for people who already use Claude Code on a Mac and want to drive it, and get text, images and video back, through iMessage.
 
 **In one sentence:** a set of macOS bash, AppleScript and Python scripts that let you text commands from your iPhone into a Claude Code session on your Mac and get text, images and video back in iMessage.
 
 **Proof in the repo:** the working scripts are all here ([`scripts/`](scripts/), [`browser-agent.py`](browser-agent.py), [`studio-record/`](studio-record/)). There is no demo video, screenshot or test suite checked in yet, and it only runs on a Mac with Messages signed in.
 
----
 
 ## 🛠️ What I Built
 
@@ -49,8 +53,6 @@ Everything below was written by **Matt Macosko**. The upstream pieces it stands 
 
 **Upstream, not mine:** [Claude Code](https://claude.ai/code) (Anthropic), Messages + AppleScript (Apple), Chrome DevTools Protocol (Chromium), `ffmpeg`, MediaPipe's selfie segmenter model (Google), `customtkinter`, Flask, OpenCV, Pillow, and whichever local MLX model you point the browser agent at. See [CREDITS.md](CREDITS.md).
 
----
-
 > ## 💥 The Big Claim
 >
 > **You are not chained to your desk anymore.**
@@ -61,12 +63,16 @@ Everything below was written by **Matt Macosko**. The upstream pieces it stands 
 >
 > *Honest fine print: the phone-to-Mac bridge runs on your Mac with no server of its own, but iMessage itself travels through Apple, and stock Claude Code sends your prompts to Anthropic's API. For a fully on-device brain, pair it with [`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local).*
 
----
 
 > 🧩 **Part of a 4-repo local-first ambient-computing stack.** Runs great standalone; wired up with the BRAIN ([`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local)) you get Claude Code with local AI driven from your phone — fully on-device, zero cloud.
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s01-rule.svg" width="100%" alt="">
 
+<a id="s2"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-banner.svg" width="100%" alt="02. iMessage and what it does. No extra apps, and the method that makes file sending work"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-r1.svg" width="100%" alt="No extra apps. iMessage is already on your Mac and iPhone. Finder copy trick. How attachments actually get delivered. Text, image, video. All land in one thread."></picture>
+
+<a id="-what-this-does"></a>
 ## 💬 iMessage — No Extra Apps Required
 
 If you have a Mac and an iPhone, you already have iMessage. It's built in, encrypted, and the app you use every day. This project is a documented, working method for sending text, images, and video from your Mac to your iPhone using nothing but iMessage — no Telegram, no Discord, no third-party services required.
@@ -90,7 +96,6 @@ Video uses this Finder copy method ([`imessage-send-video.sh`](scripts/imessage-
 
 That's it. No extra apps. No accounts. No monthly fees. 🍎
 
----
 
 ## 🤯 What This Does
 
@@ -104,8 +109,14 @@ You text Claude. Claude does things on your computer. Claude texts you back — 
 | "pull the repo and run tests" | Shell + git + reports | 💬 Pass/fail summary |
 | "go find X and send it to me" | Browses + captures | 📦 Whatever you asked for |
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s02-rule.svg" width="100%" alt="">
 
+<a id="s3"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-banner.svg" width="100%" alt="03. Mobile Mode and how it works. Your phone is the keyboard"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-r1.svg" width="100%" alt="Listener daemon. Checks the Messages database every 2 seconds. Short replies. Phone replies are capped at 3 sentences. Local bridge. Reads chat.db directly, no server."></picture>
+
+<a id="-mobile-mode--your-phone-is-the-keyboard"></a>
+<a id="-how-it-works"></a>
 ## 📱 Mobile Mode — Your Phone Is the Keyboard
 
 **This is the part that flips the whole thing around.** Toggle mobile mode on and a background daemon (`imessage-listener.sh`) starts watching `~/Library/Messages/chat.db` every two seconds. When a text arrives from your phone, it gets pasted **directly into the Terminal tab** where Claude Code (or the browser agent) is running — as if you typed it yourself. Claude replies? A short summary comes back to your phone via `imessage-send.sh`.
@@ -135,7 +146,6 @@ bash ~/.claude/imessage-toggle.sh        # captures THIS Terminal tab as the tar
 
 Double-click launchers (`📱 Claude Phone.command`, `📱 Gemma Phone.command`) are how I run it day to day. **They are not in this repo yet**, so the one-command toggle above is the supported path. The launchers do the whole dance in one double-click: clear stale state → capture TTY → start listener → `caffeinate -w $$` so the Mac won't sleep → exec Claude Code (or the browser agent) with `--dangerously-skip-permissions` so no trust prompts block remote use.
 
----
 
 ## 🏗️ How It Works
 
@@ -152,10 +162,13 @@ Your Mac 💻 (Claude Code running)
 
 Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no server, no API, no internet middleman. 100% local. 🔒 (The bridge is local. The messages themselves still ride Apple's iMessage service, and the AI is whatever runs in your Terminal.)
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s03-rule.svg" width="100%" alt="">
 
-## ⚡ Quick Start
+<a id="s4"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-banner.svg" width="100%" alt="04. Quick start. Requirements, setup and what is inside"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-r1.svg" width="100%" alt="60 s setup time. 12+ macOS version or newer. 6 steps to a test message."></picture>
 
+<a id="-quick-start"></a>
 ### Requirements
 - 🍎 Mac (macOS 12+)
 - 📱 iPhone with iMessage
@@ -195,7 +208,6 @@ cp scripts/imessage-listener.sh ~/.claude/
 
 Then grant the [permissions below](#-permissions-youll-need). The first send will fail until Accessibility is allowed.
 
----
 
 ## 📂 What's Inside
 
@@ -224,9 +236,11 @@ Then grant the [permissions below](#-permissions-youll-need). The first send wil
 📄 setup.sh                     — one-command installer
 ```
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s04-rule.svg" width="100%" alt="">
 
-## 🎬 The Video Pipeline
+<a id="s5"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-banner.svg" width="100%" alt="05. Video, browser agent and Studio Record. The extra tools it can drive"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-r1.svg" width="100%" alt="32 virtual backgrounds included. 17494 Studio Record HTTP API port. 95 MB compress limit for iMessage video."></picture>
 
 Claude can build **fully produced videos** from raw screen recordings and send them to your phone:
 
@@ -257,7 +271,6 @@ Raw screen recording
 
 See `scripts/build_production_video.py` for the full script. Customize title/end cards, branding, subtitle timing — it's all in there. **Heads up:** it is a template from one real clip. The input/output paths, keep-segments and subtitle lines are hard-coded at the top, so edit them before running. It does not detect silence or transcribe speech on its own.
 
----
 
 ## 🌐 Browser Agent
 
@@ -288,7 +301,6 @@ Input.insertText(text)          → types into anything
 
 **Built against local AI (Qwen 3.5 122B via MLX).** It sends no API key header, so pointing it straight at Anthropic's cloud API does not work yet. It needs a local server (or a proxy that adds auth) speaking the Messages API.
 
----
 
 ## 🎬 Studio Record
 
@@ -320,10 +332,13 @@ curl http://127.0.0.1:17494/status                       # 📊 check status
 **Recording modes:** `screen` | `face` | `screen_face` (PiP)
 **32 virtual backgrounds** included — swap live in the UI 🌅
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s05-rule.svg" width="100%" alt="">
 
-## 🔧 Permissions You'll Need
+<a id="s6"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-banner.svg" width="100%" alt="06. Permissions, wiring and troubleshooting. Grant access, tell Claude about it, fix common problems"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-r1.svg" width="100%" alt="Full Disk Access. To read the Messages database. Accessibility. To control Messages for sending. Screen Recording. To capture your screen."></picture>
 
+<a id="-permissions-youll-need"></a>
 Grant these in **System Settings → Privacy & Security**:
 
 | Permission | Why |
@@ -332,7 +347,6 @@ Grant these in **System Settings → Privacy & Security**:
 | ♿ **Accessibility** → Terminal/Claude | Control Messages app to send |
 | 🎬 **Screen Recording** → Terminal/Claude | Capture your screen |
 
----
 
 ## 🤖 Wiring Into Claude Code
 
@@ -374,7 +388,6 @@ bash ~/.claude/imessage-toggle.sh
 
 The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
 
----
 
 ## 💡 Pro Tips
 
@@ -383,7 +396,6 @@ The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-pu
 - 🗜️ **Video compression** — `imessage-send-video.sh` auto-compresses anything over 95MB using Apple's hardware encoder (`h264_videotoolbox`) — fast and quality.
 - 🔒 **`config.sh` is gitignored** — your phone number and email never leave your machine.
 
----
 
 ## 🐛 Troubleshooting
 
@@ -402,7 +414,6 @@ The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-pu
 **Mobile Mode says ON but nothing gets forwarded?**
 → Check `/tmp/imessage-listener.log`. If it says the listener is missing, copy `scripts/imessage-listener.sh` into `~/.claude/` (step 5 of Setup).
 
----
 
 ## 🚧 Known Limits
 
@@ -414,10 +425,13 @@ The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-pu
 - 🎥 `imessage-send-video.sh` brings Brave Browser to the front when it finishes.
 - 🧪 No automated tests. Everything drives real macOS apps, so it was tested by hand.
 
----
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s06-rule.svg" width="100%" alt="">
 
-## 🧩 The Complete Stack
+<a id="s7"></a>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-banner-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-banner-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-banner.svg" width="100%" alt="07. The complete stack. Remote, brain, ears and mouth, hands"></picture>
+<picture><source media="(max-width: 610px), (min-width: 768px) and (max-width: 895px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-r1-m.svg"><source media="(max-width: 1149px)" srcset="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-r1-mid.svg"><img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-r1.svg" width="100%" alt="Remote. claude-screen-to-phone, you are here. Brain. claude-code-local. Ears and mouth, hands. NarrateClaude and browser-agent."></picture>
 
+<a id="-the-complete-stack"></a>
 `claude-screen-to-phone` is the **phone piece**. Pairs with three sibling repos for the full ambient-computing setup — each stands alone, no mouse-scroll table needed:
 
 #### 📱 claude-screen-to-phone — **Remote** *(you are here)*
@@ -434,7 +448,6 @@ Drives Brave via Chrome DevTools Protocol. Handles iframes, Shadow DOM, ProseMir
 
 **Pair this repo with the brain** ([`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local)) and you get local-AI Claude Code driven from your phone — fully on-device, zero cloud latency, zero API fees.
 
----
 
 ## 🙌 Credit
 
@@ -442,6 +455,7 @@ Built by **Matt Macosko ([@nicedreamzapp](https://github.com/nicedreamzapp))** u
 
 > *"I built this because I wanted Claude to be my assistant even when I'm away from my computer — and I wanted receipts."* 📲
 
----
 
 ⭐ Star this if it helped you | 🐛 [Open an issue](../../issues) if something's broken | 🍴 Fork it and make it yours
+
+<img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/assets/readme/s07-rule.svg" width="100%" alt="">
