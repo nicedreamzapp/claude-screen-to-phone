@@ -110,6 +110,7 @@ if [ "$PURGE" = "1" ]; then
         rm -f "${CLAUDE_DIR:?}/$f"
     done
     echo "Removed ~/.claude/screen-to-phone-config.sh and Mobile Mode state"
+    rmdir "$CLAUDE_DIR" 2>/dev/null || true   # only if we left it empty
     if is_our_checkout "$STP_DIR" && [ "$STP_DIR" != "$HOME" ] && [ "$STP_DIR" != "/" ]; then
         rm -rf "$STP_DIR"
         echo "Removed the clone at $STP_DIR"
