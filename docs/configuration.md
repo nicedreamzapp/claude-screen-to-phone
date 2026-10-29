@@ -1,6 +1,6 @@
 ---
 title: Configuration reference - config.sh, script arguments and env vars
-description: Every option in Claude Screen to Phone read from the source code - config.sh variables, script arguments, state files, statusline labels, browser agent environment variables and Studio Record API.
+description: Every option in Claude Screen to Phone read from the source code - config.sh variables, script arguments, state files, statusline labels, installer variables and Studio Record API.
 ---
 
 # Configuration
@@ -9,26 +9,34 @@ Everything on this page was read from the source. Where the code does something 
 
 ## config.sh
 
-Created from [`config.example.sh`](https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/config.example.sh) by `setup.sh`, then copied to `~/.claude/screen-to-phone-config.sh`. It is gitignored.
+The installer creates `~/.claude/screen-to-phone-config.sh` from [`config.example.sh`](https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/config.example.sh) the first time and never overwrites it after that. Edit that file directly; there is nothing to re-run. (A `config.sh` in the clone is gitignored and is only used as the starting copy if it exists when you first install.)
 
 | Variable | Example default | Used by | What the code does with it |
 |---|---|---|---|
-| `BUDDY` | `+1XXXXXXXXXX` | send, send-image, send-video, ask, listener (and receive/agent via env) | Opens `imessage://$BUDDY` to pick the thread. `imessage-ask.sh` uses it as the AppleScript buddy. With the `+` removed it is also matched against `chat.chat_identifier` when reading replies |
+| `BUDDY` | `+1XXXXXXXXXX` | send, send-image, send-video, ask, listener, receive, agent | Opens `imessage://$BUDDY` to pick the thread. `imessage-ask.sh` uses it as the AppleScript buddy. With the `+` removed it is also matched against `chat.chat_identifier` when reading replies |
 | `APPLE_ID_EMAIL` | `you@example.com` | ask, listener, receive, agent | If set, the reply readers match chats whose identifier contains this value; if empty they fall back to `BUDDY`. The phone-number match is always added too |
 | `FFMPEG` | `/opt/homebrew/bin/ffmpeg` | `imessage-send-video.sh` | Path to the encoder used to compress videos over 95 MB. `ffprobe` is called from `PATH`, not from this variable |
-| `RECORDINGS_DIR` | `$HOME/Desktop/Screen Recordings` | nothing | Not read by any script. Studio Record and the browser agent hard-code `~/Desktop/Screen Recordings` |
+| `RECORDINGS_DIR` | `$HOME/Desktop/Screen Recordings` | nothing | Not read by any script. Studio Record (and the separate browser agent) hard-code `~/Desktop/Screen Recordings` |
 | `TTS_URL` | `http://localhost:8000/tts` | nothing | Not read by any script. `build_production_video.py` has its own `TTS_URL` constant with the same value |
 
 ### How scripts find config
 
-Each script that loads config tries, in order:
+Each script tries, in order:
 
-1. `$(dirname "$0")/../config.sh`
-2. `~/.claude/screen-to-phone-config.sh`
+1. `$STP_CONFIG`, if set, else `~/.claude/screen-to-phone-config.sh`
+2. `$(dirname "$0")/../config.sh` (the repo's `config.sh` when run from `scripts/`)
 
-When run from the repo (`scripts/…`), step 1 is the repo's `config.sh`. When run from `~/.claude/`, step 1 resolves to `~/config.sh` in your home directory. TODO-VERIFY: if a file named `~/config.sh` exists for some other reason, the installed scripts will source it instead of the installed copy.
+`imessage-send.sh`, `-send-image.sh`, `-send-video.sh`, `imessage-ask.sh` and the listener stop with `❌ config.sh not found` when neither exists. `imessage-receive.sh` and `imessage-agent.sh` load it when it exists and otherwise use `BUDDY` and `APPLE_ID_EMAIL` from the environment. When both are empty, the `LIKE '%%'` filter matches every conversation.
 
-`imessage-receive.sh` and `imessage-agent.sh` do **not** load config. Run on their own they only see `BUDDY` and `APPLE_ID_EMAIL` if exported in the environment. When both are empty, the `LIKE '%%'` filter matches every conversation. (`imessage-agent.sh` still sends through `imessage-send.sh`, which does load config.)
+## Installer variables
+
+| Env var | Default | Used by | Effect |
+|---|---|---|---|
+| `STP_DIR` | `~/claude-screen-to-phone` | install, uninstall | Where `install.sh` clones the repo, and the clone `uninstall.sh --purge` deletes |
+| `STP_REPO` | `https://github.com/nicedreamzapp/claude-screen-to-phone` | install | Git URL or local path to clone from |
+| `STP_CONFIG` | `~/.claude/screen-to-phone-config.sh` | all iMessage scripts | Config file to load |
+
+Files the installer writes in `~/.claude/`: the nine scripts, `screen-to-phone-config.sh` (only if missing), `.screen-to-phone-installed` (the manifest the uninstaller reads), and `statusLine` in `settings.json` (only if none was set).
 
 ## Script arguments
 
@@ -59,7 +67,7 @@ The reply is lower-cased and trimmed, then matched exactly:
 
 ## State files
 
-All live next to the scripts, so `~/.claude/` after install. The statusline and browser agent hard-code `~/.claude/`.
+All live next to the scripts, so `~/.claude/` after install. The statusline and the separate browser agent hard-code `~/.claude/`.
 
 | File | Written by | Meaning |
 |---|---|---|
@@ -93,36 +101,9 @@ All live next to the scripts, so `~/.claude/` after install. The statusline and 
 
 The script defines a `YESALL_FLAG` path but does not display it.
 
-## Browser agent environment variables
+## Browser agent
 
-From [`browser-agent.py`](https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/browser-agent.py):
-
-| Env var | Default | Effect |
-|---|---|---|
-| `MLX_URL` | `http://localhost:4000` | Base URL; the agent POSTs to `$MLX_URL/v1/messages` with only a `Content-Type` header (no API key) |
-| `MLX_MODEL_NAME` | `claude-sonnet-4-6` | Sent as `model` in each request. The server decides what this means |
-| `CDP_URL` | `http://127.0.0.1:9222` | Chrome DevTools endpoint. The agent attaches to the first `page` target |
-| `MAX_STEPS` | `30` | Tool calls per task before giving up |
-
-Command line: `python browser-agent.py "task"` runs one task and exits. With no arguments it loops on a `What should I do?` prompt; `quit`, `exit` or `q` leaves.
-
-Fixed values in the code:
-
-| Setting | Value |
-|---|---|
-| Request | `max_tokens` 1024, `temperature` 0.3, 120 s timeout |
-| History | first message plus last 8 kept once over 10 |
-| Tool result | cut at 4000 chars |
-| `shell` | `/bin/bash -lc` in `$HOME`, default timeout 60 s, output cut at 3500 chars |
-| `read_file` | first 8000 bytes; directories list up to 200 entries |
-| Downloads | `~/Downloads/gemma-agent/` |
-| Media send | refuses files under 5000 bytes, `encrypted-tbn0..3.gstatic.com` image URLs, and repeats in the same process |
-| Phone summary | trimmed to 500 chars, sent only when Mobile Mode is on |
-
-Tools the model can call: `navigate`, `snapshot`, `click`, `type_text`, `scroll`, `js`, `shell`, `read_file`, `write_file`, `screenshot`, `fullscreen_shot`, `send_image`, `send_video`, `record_start`, `record_stop`, `record_status`, `done`. The dispatcher also handles a `comment` tool that drafts (does not submit) a comment in a page's comment widget. It is not listed in the system prompt. A `generate_comment()` helper exists but nothing calls it.
-
-!!! danger "The shell tool runs anything"
-    `shell` and `write_file` run with your user's permissions and no confirmation step. Whatever the model returns gets executed.
+The browser and shell agent moved to its own repo, [browser-agent](https://github.com/nicedreamzapp/browser-agent), where its settings are documented. It runs as `python ~/.browser-agent/agent.py "task"` and talks to the browser through that repo's broker on port 9222. In Mobile Mode it uses `~/.claude/imessage-agent-on` and the `~/.claude/imessage-send*.sh` scripts from this repo.
 
 ## Studio Record
 

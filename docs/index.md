@@ -32,10 +32,10 @@ You need a Mac signed into Messages, an iPhone on the same Apple ID, and Apple's
 | Yes / No prompts | [`scripts/imessage-ask.sh`][ask], [`scripts/imessage-agent.sh`][agent] | Sends a question, waits, returns `YES`, `NO`, `YES_TO_ALL`, `TIMEOUT` or the raw reply |
 | Mobile Mode | [`scripts/imessage-toggle.sh`][toggle], [`scripts/imessage-listener.sh`][listen] | Background daemon that pastes each new phone text into a chosen Terminal tab |
 | Statusline | [`scripts/statusline.sh`][status] | Claude Code statusline with a context bar and a Mobile Mode ON/OFF flag |
-| Browser + shell agent | [`browser-agent.py`][ba] | Agent loop over Chrome DevTools Protocol with shell, file and phone/media tools |
+| Browser + shell agent | separate repo, [browser-agent][ba] | Its agent texts results through these scripts; its broker owns port 9222 |
 | Studio Record | [`studio-record/studio_record.py`][sr] | Screen and webcam recorder with an HTTP API on `127.0.0.1:17494` |
 | Video template | [`scripts/build_production_video.py`][bpv] | Hard-coded template: title card, cut, subtitles, end card |
-| Installer | [`setup.sh`][setup], [`config.example.sh`][cfg] | Creates `config.sh` and copies scripts into `~/.claude/` |
+| Installer | [`install.sh`][install], [`setup.sh`][setup], [`uninstall.sh`][uninstall], [`config.example.sh`][cfg] | One-line install of every script into `~/.claude/`, creates the config once, clean uninstall |
 
 ## Screenshots
 
@@ -61,9 +61,11 @@ The only images in the repo are the 32 virtual backgrounds that ship with Studio
 [toggle]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/scripts/imessage-toggle.sh
 [listen]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/scripts/imessage-listener.sh
 [status]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/scripts/statusline.sh
-[ba]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/browser-agent.py
+[ba]: https://github.com/nicedreamzapp/browser-agent
 [sr]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/studio-record/studio_record.py
 [bpv]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/scripts/build_production_video.py
+[install]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/install.sh
 [setup]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/setup.sh
+[uninstall]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/uninstall.sh
 [cfg]: https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/config.example.sh
 [bgs]: https://github.com/nicedreamzapp/claude-screen-to-phone/tree/main/studio-record/backgrounds

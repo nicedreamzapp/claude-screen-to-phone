@@ -21,17 +21,17 @@ Please remove your phone number, Apple ID and message text before posting.
 ```bash
 git clone https://github.com/nicedreamzapp/claude-screen-to-phone
 cd claude-screen-to-phone
-bash setup.sh          # creates config.sh
-nano config.sh         # set BUDDY, APPLE_ID_EMAIL and FFMPEG
-bash setup.sh          # installs scripts and config into ~/.claude/
-cp scripts/imessage-listener.sh ~/.claude/   # Mobile Mode only
+bash install.sh        # uses this checkout, installs every script into ~/.claude/
+nano ~/.claude/screen-to-phone-config.sh   # set BUDDY, APPLE_ID_EMAIL and FFMPEG
 ~/.claude/imessage-send.sh "Hello"
+bash uninstall.sh      # removes what install.sh put in ~/.claude/ (config kept)
 ```
 
+Run `bash install.sh` again after editing a script so the copy in `~/.claude/` updates.
+
 Studio Record: `cd studio-record && pip install -r requirements.txt`, then
-`python studio-record/studio_record.py` from the repo root. The browser agent:
-`pip install websockets`, then `python browser-agent.py "your task"`. The README has the full
-steps for both.
+`python studio-record/studio_record.py` from the repo root. The browser agent lives in
+[browser-agent](https://github.com/nicedreamzapp/browser-agent).
 
 ## Tests
 

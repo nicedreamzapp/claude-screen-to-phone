@@ -35,7 +35,7 @@ Yes. Every send and every forwarded Mobile Mode text replaces the clipboard.
 
 ## Can I use a local model instead of Claude?
 
-Mobile Mode doesn't care what runs in the Terminal tab; it just types into it. The browser agent talks to any server at `$MLX_URL/v1/messages` that accepts Anthropic Messages-style requests without an API key. The author built it against Qwen 3.5 122B through MLX (per the README). That server is not part of this repo.
+Mobile Mode doesn't care what runs in the Terminal tab; it just types into it. The separate [browser-agent](https://github.com/nicedreamzapp/browser-agent) runs on a local model through the MLX server from [claude-code-local](https://github.com/nicedreamzapp/claude-code-local).
 
 ## Can it approve Claude Code's permission prompts from the phone?
 

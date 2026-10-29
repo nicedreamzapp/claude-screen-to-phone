@@ -35,7 +35,7 @@ I wrote these scripts so I can text my Mac from my iPhone and have Claude Code d
 
 **In one sentence:** a set of macOS bash, AppleScript and Python scripts that let you text commands from your iPhone into a Claude Code session on your Mac and get text, images and video back in iMessage.
 
-**Proof in the repo:** the working scripts are all here ([`scripts/`](scripts/), [`browser-agent.py`](browser-agent.py), [`studio-record/`](studio-record/)). There is no demo video, screenshot or test suite checked in yet, and it only runs on a Mac with Messages signed in.
+**Proof in the repo:** the working scripts are all here ([`scripts/`](scripts/), [`studio-record/`](studio-record/)). There is no demo video, screenshot or test suite checked in yet, and it only runs on a Mac with Messages signed in.
 
 
 ## 🛠️ What I Built
@@ -46,12 +46,11 @@ Everything below was written by **Matt Macosko**. The upstream pieces it stands 
 - 📥 **Reply readers** that poll the local Messages database: [`imessage-receive.sh`](scripts/imessage-receive.sh), plus Yes / Yes to All / No prompts in [`imessage-ask.sh`](scripts/imessage-ask.sh) and [`imessage-agent.sh`](scripts/imessage-agent.sh)
 - 📱 **Mobile Mode daemon** that pastes phone texts into a chosen Terminal tab: [`imessage-listener.sh`](scripts/imessage-listener.sh), started and stopped by [`imessage-toggle.sh`](scripts/imessage-toggle.sh)
 - 📊 **Claude Code statusline** with a context bar and mobile-mode flag: [`statusline.sh`](scripts/statusline.sh)
-- 🌐 **Browser + shell agent** over raw Chrome DevTools Protocol with phone/media tools: [`browser-agent.py`](browser-agent.py)
 - 🎬 **Studio Record**, a screen/webcam recorder with an HTTP API on port 17494: [`studio-record/studio_record.py`](studio-record/studio_record.py)
 - 🎞️ **Video production script** (title card, silence cut, subtitles, end card): [`build_production_video.py`](scripts/build_production_video.py)
-- ⚙️ **Installer**: [`setup.sh`](setup.sh) and [`config.example.sh`](config.example.sh)
+- ⚙️ **Installer**: one-line [`install.sh`](install.sh) that runs [`setup.sh`](setup.sh), a clean [`uninstall.sh`](uninstall.sh), and [`config.example.sh`](config.example.sh)
 
-**Upstream, not mine:** [Claude Code](https://claude.ai/code) (Anthropic), Messages + AppleScript (Apple), Chrome DevTools Protocol (Chromium), `ffmpeg`, MediaPipe's selfie segmenter model (Google), `customtkinter`, Flask, OpenCV, Pillow, and whichever local MLX model you point the browser agent at. See [CREDITS.md](CREDITS.md).
+**Upstream, not mine:** [Claude Code](https://claude.ai/code) (Anthropic), Messages + AppleScript (Apple), `ffmpeg`, MediaPipe's selfie segmenter model (Google), `customtkinter`, Flask, OpenCV, Pillow. See [CREDITS.md](CREDITS.md).
 
 > ## 💥 The Big Claim
 >
@@ -174,36 +173,31 @@ Claude reads incoming messages directly from `~/Library/Messages/chat.db` — no
 - 📱 iPhone with iMessage
 - 🤖 [Claude Code](https://claude.ai/code) installed
 - 🍺 `ffmpeg` — `brew install ffmpeg` (needed for video compression)
-- 🧾 `jq` (optional): `brew install jq`, so `setup.sh` can wire the statusline into `~/.claude/settings.json`
+- 🧾 `jq` (optional): `brew install jq`, used by the statusline (the installer falls back to macOS `plutil` for `settings.json`)
 - 🐍 Python 3 + deps — `pip install -r studio-record/requirements.txt` (only for Studio Record)
-- 🌐 For the browser agent only: Python 3 and `pip install websockets`, plus Brave and a model server (see Browser Agent below)
 - 🖥️ Apple's **Terminal.app** for Mobile Mode (the daemon finds the tab by its TTY through Terminal's AppleScript; iTerm and others are not supported)
 - ✅ Messages app signed into your Apple ID
 
 ### Setup (60 seconds)
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/nicedreamzapp/claude-screen-to-phone
-cd claude-screen-to-phone
+# 1. Install (clones to ~/claude-screen-to-phone, installs every script into ~/.claude/)
+curl -fsSL https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/install.sh | bash
 
-# 2. Run setup — creates config.sh template
-bash setup.sh
-
-# 3. Fill in your details
-nano config.sh
+# 2. Fill in your details
+nano ~/.claude/screen-to-phone-config.sh
 #   → Set BUDDY to your iPhone number (+15551234567)
 #   → Set APPLE_ID_EMAIL to your Apple ID
 #   → Check FFMPEG points at your ffmpeg (run: which ffmpeg)
 
-# 4. Run setup again to install scripts + config into ~/.claude/
-bash setup.sh
-
-# 5. Mobile Mode only: setup.sh does not copy the listener yet, so copy it by hand
-cp scripts/imessage-listener.sh ~/.claude/
-
-# 6. Test it
+# 3. Test it
 ~/.claude/imessage-send.sh "Hello from Claude! 👋"
+```
+
+Safe to run again: it never overwrites a filled-in config, and it only sets the statusline if you have none. To uninstall (add `-s -- --purge` to also delete the config and the clone):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/uninstall.sh | bash
 ```
 
 Then grant the [permissions below](#-permissions-youll-need). The first send will fail until Accessibility is allowed.
@@ -224,8 +218,6 @@ Then grant the [permissions below](#-permissions-youll-need). The first send wil
    📜 statusline.sh             - Claude Code statusline (context bar + mobile flag)
    🐍 build_production_video.py - video editor template: title card + silence cut + subtitles + end card
 
-🌐 browser-agent.py              — autonomous browser agent (CDP + MLX/Claude)
-
 📁 studio-record/
    🎬 studio_record.py          — recording app (screen / webcam / PiP)
    📄 requirements.txt          — Python deps
@@ -233,7 +225,9 @@ Then grant the [permissions below](#-permissions-youll-need). The first send wil
    🖼️  backgrounds/              — 32 virtual backgrounds included
 
 📄 config.example.sh            — your personal settings template
-📄 setup.sh                     — one-command installer
+📄 install.sh                   — one-line installer (clones, then runs setup.sh)
+📄 setup.sh                     — installs the scripts into ~/.claude/
+📄 uninstall.sh                 — removes exactly what setup.sh installed
 ```
 
 <img src="https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/628815357c4f5bf1bca9622dd10c57bb83ef2d4e/assets/readme/s04-rule.svg" width="100%" alt="">
@@ -274,32 +268,18 @@ See `scripts/build_production_video.py` for the full script. Customize title/end
 
 ## 🌐 Browser Agent
 
-Autonomous browser agent — Claude controls **Brave** directly via Chrome DevTools Protocol to grab anything from the web before sending it to your phone.
+The browser agent lives in its own repo now, [browser-agent](https://github.com/nicedreamzapp/browser-agent). Its broker owns port 9222 as a proxy in front of your real, logged-in browser and gives each agent its own background tab, so you don't launch Brave with a debug port yourself:
 
 ```bash
-# Prerequisites: Brave with remote debugging + a model server running
-open -a "Brave Browser" --args --remote-debugging-port=9222
-# The agent POSTs Anthropic-style requests to $MLX_URL/v1/messages
-# (default http://localhost:4000). That server is NOT included in this repo.
-export MLX_URL=http://localhost:4000      # optional, this is the default
-export MLX_MODEL_NAME=your-model-name     # optional
-pip install websockets
+# Install the broker (clones to ~/.browser-agent)
+curl -fsSL https://raw.githubusercontent.com/nicedreamzapp/browser-agent/main/broker/get.sh | bash
 
-# Run it
-python browser-agent.py "Find a cool article about X and screenshot it"
+# Run the agent (needs the MLX server from claude-code-local)
+cd ~/.browser-agent && pip install websockets
+python agent.py "Find a cool article about X and screenshot it"
 ```
 
-**Why it's different from normal browser automation:**
-
-Most tools (Playwright, Selenium, MCP) break on news sites because comment widgets and embedded content live inside cross-origin iframes + Shadow DOM. This agent uses raw CDP primitives that bypass all of that:
-
-```
-DOM.getDocument(pierce: true)   → sees through iframes + Shadow DOM
-DOM.focus(nodeId)               → focuses any element regardless of origin
-Input.insertText(text)          → types into anything
-```
-
-**Built against local AI (Qwen 3.5 122B via MLX).** It sends no API key header, so pointing it straight at Anthropic's cloud API does not work yet. It needs a local server (or a proxy that adds auth) speaking the Messages API.
+With Mobile Mode on, it texts results, screenshots and media through the `~/.claude/imessage-send*.sh` scripts from this repo.
 
 
 ## 🎬 Studio Record
@@ -386,7 +366,7 @@ bash ~/.claude/imessage-toggle.sh
 
 ### 🧰 Remote building from the phone
 
-The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
+The [browser agent](https://github.com/nicedreamzapp/browser-agent) also has **general-purpose tools** (`shell`, `read_file`, `write_file`) alongside browser + media tools, so you can text it build instructions — "pull my repo and run tests," "restart the server," "show me what's in `~/Desktop/Screen Recordings`" — and it actually executes them and texts the result back.
 
 
 ## 💡 Pro Tips
@@ -394,7 +374,7 @@ The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-pu
 - 🔄 **Loop it** — Claude can run in a send → wait → reply loop indefinitely. Text "stop" to end it.
 - 📹 **Screen recordings** — Claude uses the Studio Record API (`http://127.0.0.1:17494`) to start/stop recordings programmatically.
 - 🗜️ **Video compression** — `imessage-send-video.sh` auto-compresses anything over 95MB using Apple's hardware encoder (`h264_videotoolbox`) — fast and quality.
-- 🔒 **`config.sh` is gitignored** — your phone number and email never leave your machine.
+- 🔒 **Your config lives outside the repo** in `~/.claude/screen-to-phone-config.sh` (and `config.sh` is gitignored), so your phone number and email never leave your machine.
 
 
 ## 🐛 Troubleshooting
@@ -409,19 +389,17 @@ The browser agent ([`browser-agent.py`](browser-agent.py)) also has **general-pu
 → Grant Full Disk Access to Terminal (or your Claude Code app).
 
 **Receive script times out, or picks up a text from the wrong chat?**
-→ Double-check `BUDDY` and `APPLE_ID_EMAIL` in `config.sh` match what's in your Messages conversations. Note that `imessage-receive.sh` and `imessage-agent.sh` do not load `config.sh` themselves, so when run on their own they watch every conversation. Export `BUDDY` and `APPLE_ID_EMAIL` in your shell to narrow them. (`imessage-ask.sh` and the listener do load it.)
+→ Double-check `BUDDY` and `APPLE_ID_EMAIL` in `~/.claude/screen-to-phone-config.sh` match what's in your Messages conversations. The scripts read `~/.claude/screen-to-phone-config.sh`.
 
 **Mobile Mode says ON but nothing gets forwarded?**
-→ Check `/tmp/imessage-listener.log`. If it says the listener is missing, copy `scripts/imessage-listener.sh` into `~/.claude/` (step 5 of Setup).
+→ Check `/tmp/imessage-listener.log`. If it says the listener is missing, run the installer again; it now installs `imessage-listener.sh` too.
 
 
 ## 🚧 Known Limits
 
 - 🍎 macOS only, and Mobile Mode only drives Apple's Terminal.app.
-- 📦 `setup.sh` does not install `imessage-listener.sh` yet (manual copy, see Setup).
 - 🚀 The double-click launchers mentioned above are not in the repo.
 - 🎞️ `build_production_video.py` is a hard-coded template, not a general editor.
-- 🌐 The browser agent needs a Messages-API-compatible model server that this repo does not ship, and it sends no API key.
 - 🎥 `imessage-send-video.sh` brings Brave Browser to the front when it finishes.
 - 🧪 No automated tests. Everything drives real macOS apps, so it was tested by hand.
 
@@ -444,7 +422,7 @@ Claude Code running on local AI (Gemma 31B / Llama 70B / Qwen 122B). Zero cloud,
 Talk to Claude, hear replies in your cloned voice. Fully on-device hands-free loop.
 
 #### 🌐 [browser-agent](https://github.com/nicedreamzapp/browser-agent) — **Hands**
-Drives Brave via Chrome DevTools Protocol. Handles iframes, Shadow DOM, ProseMirror.
+The browser agent plus the broker that owns port 9222, so several agents can share your real browser.
 
 **Pair this repo with the brain** ([`claude-code-local`](https://github.com/nicedreamzapp/claude-code-local)) and you get local-AI Claude Code driven from your phone — fully on-device, zero cloud latency, zero API fees.
 

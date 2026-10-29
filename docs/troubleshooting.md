@@ -9,7 +9,7 @@ The repo has no GitHub issues filed yet (checked October 2026), so this page is 
 
 ## `❌ config.sh not found. Run setup.sh first.`
 
-Printed by `imessage-send.sh`, `-send-image.sh`, `-send-video.sh`, `-ask.sh` and the listener when neither `../config.sh` nor `~/.claude/screen-to-phone-config.sh` exists. Run `bash setup.sh` twice: once to create `config.sh`, then again after filling it in.
+Printed by `imessage-send.sh`, `-send-image.sh`, `-send-video.sh`, `-ask.sh` and the listener when neither `~/.claude/screen-to-phone-config.sh` nor `../config.sh` exists. Run the installer (or `bash setup.sh` in your clone) once, then fill in `~/.claude/screen-to-phone-config.sh`.
 
 ## Messages won't send
 
@@ -20,12 +20,12 @@ Printed by `imessage-send.sh`, `-send-image.sh`, `-send-video.sh`, `-ask.sh` and
 ## `chat.db` permission denied, or replies always `TIMEOUT`
 
 - Grant **Full Disk Access** to Terminal (or your Claude Code app). Without it `sqlite3` can't open `~/Library/Messages/chat.db`; the scripts send errors to `/dev/null`, so this shows up as a `0` baseline and then `TIMEOUT`.
-- `imessage-receive.sh` and `imessage-agent.sh` don't load `config.sh`. Run on their own, they watch every conversation unless `BUDDY` and `APPLE_ID_EMAIL` are exported in your shell. `imessage-ask.sh` and the listener do load it.
+- With no config file, `imessage-receive.sh` and `imessage-agent.sh` fall back to `BUDDY` and `APPLE_ID_EMAIL` from your shell, and with neither they watch every conversation.
 - Check that `BUDDY` or `APPLE_ID_EMAIL` actually appears in the chat identifier for your thread in Messages.
 
 ## Reply picked up from the wrong chat
 
-Same cause as above. With empty `BUDDY` and `APPLE_ID_EMAIL` the filter becomes `LIKE '%%'`, which matches every chat. Export both, or call `imessage-ask.sh`, which sources config.
+Same cause as above. With empty `BUDDY` and `APPLE_ID_EMAIL` the filter becomes `LIKE '%%'`, which matches every chat. Fill both in `~/.claude/screen-to-phone-config.sh`.
 
 ## `File not found: …` / `Usage: …`
 
@@ -35,7 +35,7 @@ Printed by the image and video senders when the path is missing or wrong. They r
 
 `imessage-send-video.sh` printed this because `ffmpeg` exited non-zero. Check:
 
-- `FFMPEG` in `config.sh` points at a real binary (`which ffmpeg`), then re-run `setup.sh` to copy the config.
+- `FFMPEG` in `~/.claude/screen-to-phone-config.sh` points at a real binary (`which ffmpeg`).
 - `ffprobe` is on `PATH`. The duration comes from `ffprobe`; if it's missing, the bitrate math divides by an empty value.
 - Your ffmpeg build includes `h264_videotoolbox` (Homebrew's macOS build does).
 
@@ -53,7 +53,7 @@ Look at `/tmp/imessage-listener.log`.
 
 | Log line | Cause | Fix |
 |---|---|---|
-| `No such file` for `imessage-listener.sh` | `setup.sh` does not copy the listener | `cp scripts/imessage-listener.sh ~/.claude/` |
+| `No such file` for `imessage-listener.sh` | An install from before the one-line installer | Run the installer again; it now copies the listener |
 | `no target window saved, exiting` | `imessage-mobile-target` missing | Run the toggle again from the Terminal tab you want |
 | `target file missing TARGET_TTY, exiting` | Target file is empty | Toggle off, then on |
 | `[applescript: ERROR: no Terminal tab with tty …]` | That tab was closed, or you're in iTerm/another terminal | Re-toggle from a Terminal.app tab |
@@ -71,18 +71,7 @@ That's intended. It only shows ON when `imessage-listener.pid` exists and that p
 
 ## Browser agent
 
-| Message | Cause |
-|---|---|
-| `No browser pages` | Brave not running with `--remote-debugging-port=9222`, or no open tab. `CDP_URL` overrides the address |
-| `Task failed: URLError …` | Nothing listening at `MLX_URL` (default `http://localhost:4000`) |
-| `Step N (no tool)` | The model reply had no parsable `{"tool": …}` JSON; the agent asks again |
-| `Reached max steps (30)` | Raise `MAX_STEPS` or narrow the task |
-| `mobile mode is off` | Media tools only send when `~/.claude/imessage-agent-on` exists |
-| `refused: that's a Google Images thumbnail` | URL is from `encrypted-tbn*.gstatic.com` |
-| `failed: download too small` | Downloaded file under 5000 bytes, usually an HTML error page |
-| `studio not reachable` / `start failed` | Studio Record isn't running. The agent only auto-starts it if `~/Desktop/Screen Recordings/studio_record.py` and `.venv/bin/python` exist there |
-
-Pointing `MLX_URL` at Anthropic's hosted API does not work as-is: the agent sends no API key or version header.
+The browser agent is now its own repo. Troubleshooting for it, and for the broker that owns port 9222, is in [browser-agent](https://github.com/nicedreamzapp/browser-agent). Its phone features need Mobile Mode on (`~/.claude/imessage-agent-on`) and the scripts installed here.
 
 ## Studio Record
 

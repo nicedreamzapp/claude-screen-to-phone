@@ -7,6 +7,12 @@ description: History of Claude Screen to Phone built from the git log, from the 
 
 The repo has no tags or GitHub releases. This list is built from `git log` on `main`, grouped by date. Commit hashes link to GitHub.
 
+## 2026-10-29
+
+- One-line `install.sh` and `uninstall.sh`; `setup.sh` now installs every script including `imessage-listener.sh`, creates the config once and never overwrites it, and only sets `statusLine` when none is set.
+- All iMessage scripts read `~/.claude/screen-to-phone-config.sh` first; `imessage-receive.sh` and `imessage-agent.sh` now load it too.
+- The browser agent moved to [browser-agent](https://github.com/nicedreamzapp/browser-agent); `browser-agent.py` is removed from this repo.
+
 ## 2026-10-09
 
 - README: add a plain opening and list browser agent requirements ([`edcc5b8`](https://github.com/nicedreamzapp/claude-screen-to-phone/commit/edcc5b8)).

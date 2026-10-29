@@ -5,7 +5,7 @@
 Send and receive iMessages to control Claude from your iPhone and send back text, images, and video.
 
 ### Setup (first time)
-Run `bash setup.sh` and fill in `config.sh` with your phone number before using any of these.
+Install with `curl -fsSL https://raw.githubusercontent.com/nicedreamzapp/claude-screen-to-phone/main/install.sh | bash`, then fill in `~/.claude/screen-to-phone-config.sh` with your phone number before using any of these.
 
 ### Trigger phrases — toggle mobile mode ON if the user says any of these:
 "turn on imessage", "imessage mode", "text mode", "phone mode", "message mode",
@@ -89,7 +89,7 @@ When mobile mode is ON, messages sent back to the phone MUST be scannable at a g
 - **Context bar** is color-tiered: green <40%, cyan 40–69%, yellow 70–89%, red 90%+.
 - **Mobile flag** mirrors the file `imessage-toggle.sh` writes — blue when on, gray when off.
 
-`setup.sh` installs it to `~/.claude/statusline.sh` and wires it into `~/.claude/settings.json` automatically.
+The installer copies it to `~/.claude/statusline.sh` and wires it into `~/.claude/settings.json` when no statusLine is set yet.
 
 ## 🎬 Studio Record (screen recording)
 
@@ -109,33 +109,18 @@ curl http://127.0.0.1:17494/status
 
 Recording modes: `screen` | `face` | `screen_face` (picture-in-picture)
 
-## 🌐 Browser Agent (general-purpose remote agent)
+## 🌐 Browser Agent (separate repo)
 
-Autonomous agent backed by a local MLX model + Chrome DevTools Protocol. Originally browser-only; now has a much broader tool set so it can be driven from the phone as a real remote-building agent.
+The browser and shell agent lives in [browser-agent](https://github.com/nicedreamzapp/browser-agent). Its broker owns port 9222 as a proxy in front of the real browser and leases each agent its own background tab, so never launch Brave with a debug port from here.
 
 ```bash
-# Brave must be running with remote debugging
-open -a "Brave Browser" --args --remote-debugging-port=9222
-python browser-agent.py "Find an article about X and screenshot it"
+# one-time: install the broker (clones to ~/.browser-agent)
+curl -fsSL https://raw.githubusercontent.com/nicedreamzapp/browser-agent/main/broker/get.sh | bash
+# run a task (needs the MLX server from claude-code-local)
+python ~/.browser-agent/agent.py "Find an article about X and screenshot it"
 ```
 
-### Browser tools
-- `navigate(url)`, `snapshot()`, `click(uid)`, `type_text(uid, text)`, `scroll(direction)`, `js(code)`
-
-### System tools (picked FIRST for code/file/deploy work — don't open a browser for shell tasks)
-- `shell(cmd, timeout?)` — bash in `$HOME`; stdout+stderr returned (truncated)
-- `read_file(path)` — read a text file or list a directory
-- `write_file(path, content)` — overwrite a file (creates parent dirs)
-
-### Phone/media tools (require mobile mode on)
-- `screenshot()` — current Brave tab as PNG, texted to phone
-- `fullscreen_shot()` — full macOS desktop via `screencapture`, texted
-- `send_image(url)` — download + text any image URL (rejects `gstatic` thumbnails + dedupes)
-- `send_video(url)` — same for video
-- `record_start(mode)` / `record_stop()` / `record_status()` — drives Studio Record, auto-texts the `.mp4`
-
-### Auto-notify the phone on task events
-When `~/.claude/imessage-agent-on` exists, `done()`, max-steps, and task failures each send a one-line `imessage-send.sh` update to the phone, so you don't need to watch the terminal.
+When `~/.claude/imessage-agent-on` exists, the agent texts results, screenshots and media through `~/.claude/imessage-send*.sh` from this repo.
 
 ## 🎥 Full Pipeline Example
 

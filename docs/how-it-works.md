@@ -1,6 +1,6 @@
 ---
 title: How it works - reading chat.db and driving Messages with AppleScript
-description: Architecture of Claude Screen to Phone - how replies are read from the macOS Messages SQLite database, how sends use the clipboard, how Mobile Mode types into Terminal, and how the browser agent and Studio Record fit in.
+description: Architecture of Claude Screen to Phone - how replies are read from the macOS Messages SQLite database, how sends use the clipboard, how Mobile Mode types into Terminal, and how Studio Record and the separate browser agent fit in.
 ---
 
 # How it works
@@ -89,17 +89,7 @@ Because the listener uses the clipboard, anything you had copied on the Mac is o
 
 ## Browser agent
 
-[`browser-agent.py`](https://github.com/nicedreamzapp/claude-screen-to-phone/blob/main/browser-agent.py) is a single-file loop:
-
-1. Connect to Brave through the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) websocket (`websockets` library) and enable `DOM`, `Accessibility`, `Page`, `Runtime`.
-2. Send the task to the model at `$MLX_URL/v1/messages` with a system prompt listing the tools. The model must answer with one JSON object `{"tool": …, "args": {…}}`. `<think>…</think>` blocks are stripped before parsing.
-3. Run the tool, append `Result: …` and repeat, up to `MAX_STEPS`.
-
-`snapshot()` uses `Accessibility.getFullAXTree` (depth 8) and lists links, buttons, inputs, headings and long text with their node IDs (up to 200 lines). `click()` resolves the node, scrolls it into view and dispatches real mouse events at the box center, falling back to a JS `click()`. The comment helper reaches into cross-origin comment iframes (OpenWeb, Spot.im, Disqus) by connecting to the iframe target directly and using `DOM.getDocument(pierce: true)`, `DOM.performSearch(".ProseMirror")`, `DOM.focus` and `Input.insertText`.
-
-Guards in the loop: a UID clicked more than twice triggers an Escape key and a fresh snapshot; an identical snapshot gets a warning appended.
-
-The README says the agent was built against Qwen 3.5 122B served locally through MLX. The repo does not include that server. Any server that speaks the Anthropic Messages request/response shape at that path should work in principle. TODO-VERIFY against servers other than the author's.
+The browser and shell agent lives in [browser-agent](https://github.com/nicedreamzapp/browser-agent). Its broker owns the browser's debug port 9222 as a proxy and leases each agent its own background tab, so nothing here launches Brave with a debug port. The agent (`python ~/.browser-agent/agent.py "task"`) reaches the phone through this repo: when `~/.claude/imessage-agent-on` exists it texts results, screenshots and media with `~/.claude/imessage-send.sh`, `-send-image.sh` and `-send-video.sh`.
 
 ## Studio Record
 

@@ -20,6 +20,6 @@ Mobile Mode turns text messages into keystrokes on your Mac, so the parts where 
 
 - `scripts/imessage-listener.sh`, which reads `~/Library/Messages/chat.db` and pastes texts from the matched conversation into a Terminal tab running an agent
 - `scripts/imessage-receive.sh`, `scripts/imessage-ask.sh` and `scripts/imessage-agent.sh`, which read replies from the Messages database and decide which chat counts as you (including the "Yes to All" flag file)
-- `browser-agent.py`, which has `shell`, `read_file` and `write_file` tools and drives your real browser over remote debugging
 - Studio Record's HTTP API in `studio-record/studio_record.py`, on `127.0.0.1` port 17494, which starts and stops screen and webcam recording
-- `config.sh`, written by `setup.sh` and installed into `~/.claude/`, which holds your phone number and Apple ID
+- `~/.claude/screen-to-phone-config.sh`, created by the installer, which holds your phone number and Apple ID
+- `install.sh`, `setup.sh` and `uninstall.sh`, which write into `~/.claude/` and edit `~/.claude/settings.json`
