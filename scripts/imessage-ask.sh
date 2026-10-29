@@ -13,9 +13,10 @@ WHAT="$1"
 WHY="$2"
 TIMEOUT=${3:-600}
 # Source config
-CONFIG="$(dirname "$0")/../config.sh"
-[ ! -f "$CONFIG" ] && CONFIG="$HOME/.claude/screen-to-phone-config.sh"
+CONFIG="${STP_CONFIG:-$HOME/.claude/screen-to-phone-config.sh}"
+[ ! -f "$CONFIG" ] && CONFIG="$(dirname "$0")/../config.sh"
 if [ ! -f "$CONFIG" ]; then echo "❌ config.sh not found. Run setup.sh first."; exit 1; fi
+# shellcheck disable=SC1090
 source "$CONFIG"
 YESALL_FILE="$DIR/imessage-yesall"
 ASK_LOCK="$DIR/imessage-ask-active"
@@ -59,10 +60,11 @@ touch "$ASK_LOCK"
 
 # Wait for reply
 REPLY=$(bash "$DIR/imessage-receive.sh" "$TIMEOUT" "$BEFORE_ROWID" "$MSG")
+RC=$?
 
 rm -f "$ASK_LOCK"
 
-if [ $? -ne 0 ] || [ "$REPLY" = "TIMEOUT" ]; then
+if [ $RC -ne 0 ] || [ "$REPLY" = "TIMEOUT" ]; then
     echo "TIMEOUT"
     exit 1
 fi

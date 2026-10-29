@@ -6,6 +6,11 @@
 TIMEOUT=${1:-300}
 SINCE_ROWID=${2:-0}
 SENT_TEXT=${3:-""}  # the text WE sent, so we can skip it
+# Load BUDDY / APPLE_ID_EMAIL from the config if there is one (env still works)
+CONFIG="${STP_CONFIG:-$HOME/.claude/screen-to-phone-config.sh}"
+[ ! -f "$CONFIG" ] && CONFIG="$(dirname "$0")/../config.sh"
+# shellcheck disable=SC1090
+[ -f "$CONFIG" ] && source "$CONFIG"
 DB="$HOME/Library/Messages/chat.db"
 BUDDY_MATCH="%${APPLE_ID_EMAIL:-$BUDDY}%"
 PHONE_MATCH="%$(echo "$BUDDY" | tr -d '+')%"

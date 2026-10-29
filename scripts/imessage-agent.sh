@@ -3,9 +3,13 @@
 # Usage: imessage-agent.sh "Your question here" [timeout_seconds]
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-FLAG_FILE="$DIR/imessage-agent-on"
 YESALL_FILE="$DIR/imessage-yesall"
 ASK_LOCK="$DIR/imessage-ask-active"
+# Load BUDDY / APPLE_ID_EMAIL from the config if there is one (env still works)
+CONFIG="${STP_CONFIG:-$HOME/.claude/screen-to-phone-config.sh}"
+[ ! -f "$CONFIG" ] && CONFIG="$(dirname "$0")/../config.sh"
+# shellcheck disable=SC1090
+[ -f "$CONFIG" ] && source "$CONFIG"
 DB="$HOME/Library/Messages/chat.db"
 BUDDY_MATCH="%${APPLE_ID_EMAIL:-$BUDDY}%"
 PHONE_MATCH="%$(echo "$BUDDY" | tr -d '+')%"
@@ -36,10 +40,11 @@ touch "$ASK_LOCK"
 
 # Wait for reply (pass our sent text so it gets skipped)
 REPLY=$(bash "$DIR/imessage-receive.sh" "$TIMEOUT" "$BEFORE_ROWID" "$QUESTION")
+RC=$?
 
 rm -f "$ASK_LOCK"
 
-if [ $? -ne 0 ] || [ "$REPLY" = "TIMEOUT" ]; then
+if [ $RC -ne 0 ] || [ "$REPLY" = "TIMEOUT" ]; then
     echo "TIMEOUT"
     exit 1
 fi

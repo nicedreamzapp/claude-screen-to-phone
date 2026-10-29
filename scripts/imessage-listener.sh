@@ -7,9 +7,10 @@
 # Stopped (killed by PID) by imessage-toggle.sh when mobile mode is turned OFF.
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG="$(dirname "$0")/../config.sh"
-[ ! -f "$CONFIG" ] && CONFIG="$HOME/.claude/screen-to-phone-config.sh"
+CONFIG="${STP_CONFIG:-$HOME/.claude/screen-to-phone-config.sh}"
+[ ! -f "$CONFIG" ] && CONFIG="$(dirname "$0")/../config.sh"
 if [ ! -f "$CONFIG" ]; then echo "❌ config.sh not found. Run setup.sh first." >&2; exit 1; fi
+# shellcheck disable=SC1090
 source "$CONFIG"
 FLAG_FILE="$DIR/imessage-agent-on"
 TARGET_FILE="$DIR/imessage-mobile-target"
