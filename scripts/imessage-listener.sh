@@ -69,8 +69,10 @@ while [ -f "$FLAG_FILE" ]; do
     fi
 
     # Pull any new messages since the last one we forwarded
+    # Newlines inside a text are flattened in the query: sqlite3 prints them
+    # as-is, which would split one message across several rows below.
     NEW_MSGS=$(sqlite3 -separator $'\t' "$DB" "
-        SELECT m.ROWID, m.text
+        SELECT m.ROWID, replace(replace(m.text, char(13), ' '), char(10), ' ')
         FROM message m
         JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
         JOIN chat c ON cmj.chat_id = c.ROWID
@@ -83,7 +85,9 @@ while [ -f "$FLAG_FILE" ]; do
 
     if [ -n "$NEW_MSGS" ]; then
         while IFS=$'\t' read -r ROWID TEXT; do
-            [ -z "$ROWID" ] && continue
+            # Only an all-digit ROWID may become the pointer; anything else
+            # would break the next poll and silently stop forwarding.
+            case "$ROWID" in ''|*[!0-9]*) continue ;; esac
             LAST_ROWID="$ROWID"
 
             # Skip echoes of messages WE sent via imessage-send.sh in the last 60s.
