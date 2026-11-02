@@ -1,0 +1,9 @@
+# These scripts run on macOS. A CRLF line ending makes the kernel look for an
+# interpreter called "/bin/bash\r" and every shell variable pick up a trailing
+# carriage return, so the line endings are pinned here regardless of what the
+# contributor's core.autocrlf is set to.
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.applescript text eol=lf
