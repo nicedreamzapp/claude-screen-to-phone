@@ -19,42 +19,49 @@ if [ -f "$SENT_LOG" ]; then
     tail -n 50 "$SENT_LOG" > "${SENT_LOG}.tmp" 2>/dev/null && mv "${SENT_LOG}.tmp" "$SENT_LOG"
 fi
 
-osascript <<APPLESCRIPT
-set msgText to "$MSG"
-set prevApp to path to frontmost application as text
-set the clipboard to msgText
+# The message and buddy are passed as ARGUMENTS, not pasted into the script body.
+# The heredoc is quoted ('APPLESCRIPT') so the shell expands nothing inside it.
+# Interpolating here would let a double quote in the text close the AppleScript
+# string and run whatever follows, including `do shell script`.
+osascript - "$MSG" "$BUDDY" <<'APPLESCRIPT'
+on run argv
+    set msgText to item 1 of argv
+    set buddyID to item 2 of argv
+    set prevApp to path to frontmost application as text
+    set the clipboard to msgText
 
-tell application "Messages" to launch
-delay 0.3
-tell application "System Events"
-    tell process "Messages"
-        repeat with w in windows
-            try
-                set position of w to {-9999, -9999}
-            end try
-        end repeat
+    tell application "Messages" to launch
+    delay 0.3
+    tell application "System Events"
+        tell process "Messages"
+            repeat with w in windows
+                try
+                    set position of w to {-9999, -9999}
+                end try
+            end repeat
+        end tell
     end tell
-end tell
 
-do shell script "open 'imessage://$BUDDY'"
-delay 1.2
+    do shell script "open " & quoted form of ("imessage://" & buddyID)
+    delay 1.2
 
-tell application "System Events"
-    tell process "Messages"
-        repeat with w in windows
-            try
-                set position of w to {-9999, -9999}
-            end try
-        end repeat
-        set frontmost to true
-        delay 0.2
-        keystroke "v" using command down
-        delay 0.3
-        key code 36
-        delay 0.3
+    tell application "System Events"
+        tell process "Messages"
+            repeat with w in windows
+                try
+                    set position of w to {-9999, -9999}
+                end try
+            end repeat
+            set frontmost to true
+            delay 0.2
+            keystroke "v" using command down
+            delay 0.3
+            key code 36
+            delay 0.3
+        end tell
+        set visible of process "Messages" to false
     end tell
-    set visible of process "Messages" to false
-end tell
-delay 0.1
-activate application prevApp
+    delay 0.1
+    activate application prevApp
+end run
 APPLESCRIPT

@@ -18,8 +18,15 @@ SENT_LOG="$DIR/imessage-sent-recent"
 ASK_LOCK="$DIR/imessage-ask-active"
 STARTUP_LOCK="$DIR/imessage-startup-lock"
 DB="$HOME/Library/Messages/chat.db"
-BUDDY_MATCH="%${APPLE_ID_EMAIL:-$BUDDY}%"
-PHONE_MATCH="%$(echo "$BUDDY" | tr -d '+')%"
+# Owner identifiers, matched EXACTLY. This listener types what it finds straight
+# into a Terminal tab, so the match has to be the owner and nobody else. A
+# LIKE '%...%' would also match any sender whose chat identifier merely contains
+# the address, handing that person the keyboard.
+# Single quotes are doubled so a value can never close the SQL string literal.
+sql_quote() { printf '%s' "${1//\'/\'\'}"; }
+BUDDY_ID="$(sql_quote "${APPLE_ID_EMAIL:-$BUDDY}")"
+BUDDY_PHONE="$(sql_quote "$(printf '%s' "$BUDDY" | tr -d '+')")"
+OWNER_SQL="(lower(c.chat_identifier) = lower('$BUDDY_ID') OR replace(c.chat_identifier, '+', '') = '$BUDDY_PHONE')"
 
 # Need a target window saved by the toggle script
 if [ ! -f "$TARGET_FILE" ]; then
@@ -40,7 +47,7 @@ get_max_rowid() {
         FROM message m
         JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
         JOIN chat c ON cmj.chat_id = c.ROWID
-        WHERE (c.chat_identifier LIKE '$BUDDY_MATCH' OR c.chat_identifier LIKE '$PHONE_MATCH')
+        WHERE $OWNER_SQL
     " 2>/dev/null || echo "0"
 }
 
@@ -76,7 +83,7 @@ while [ -f "$FLAG_FILE" ]; do
         FROM message m
         JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
         JOIN chat c ON cmj.chat_id = c.ROWID
-        WHERE (c.chat_identifier LIKE '$BUDDY_MATCH' OR c.chat_identifier LIKE '$PHONE_MATCH')
+        WHERE $OWNER_SQL
           AND m.ROWID > $LAST_ROWID
           AND m.text IS NOT NULL
           AND m.text != ''
@@ -116,40 +123,45 @@ while [ -f "$FLAG_FILE" ]; do
             # Use clipboard so special characters survive (no AppleScript escaping nightmare)
             printf '%s' "$CLEAN_TEXT" | pbcopy
 
-            ACTIVATED=$(osascript <<APPLESCRIPT 2>&1
-tell application "Terminal"
-    set targetWin to missing value
-    set targetTab to missing value
-    repeat with w in windows
-        repeat with t in tabs of w
-            if tty of t is "$TARGET_TTY" then
-                set targetWin to w
-                set targetTab to t
-                exit repeat
-            end if
+            # The tty goes in as an argument and the heredoc is quoted, so nothing
+            # from the config or target file is pasted into the script body.
+            ACTIVATED=$(osascript - "$TARGET_TTY" <<'APPLESCRIPT' 2>&1
+on run argv
+    set targetTTY to item 1 of argv
+    tell application "Terminal"
+        set targetWin to missing value
+        set targetTab to missing value
+        repeat with w in windows
+            repeat with t in tabs of w
+                if tty of t is targetTTY then
+                    set targetWin to w
+                    set targetTab to t
+                    exit repeat
+                end if
+            end repeat
+            if targetWin is not missing value then exit repeat
         end repeat
-        if targetWin is not missing value then exit repeat
-    end repeat
-    if targetWin is missing value then
-        return "ERROR: no Terminal tab with tty $TARGET_TTY"
-    end if
-    set selected tab of targetWin to targetTab
-    set index of targetWin to 1
-    activate
-end tell
-delay 0.3
-tell application "System Events"
-    set frontmost of (first process whose name is "Terminal") to true
-end tell
-delay 0.2
-tell application "System Events"
-    tell process "Terminal"
-        keystroke "v" using command down
-        delay 0.3
-        key code 36
+        if targetWin is missing value then
+            return "ERROR: no Terminal tab with tty " & targetTTY
+        end if
+        set selected tab of targetWin to targetTab
+        set index of targetWin to 1
+        activate
     end tell
-end tell
-return "OK"
+    delay 0.3
+    tell application "System Events"
+        set frontmost of (first process whose name is "Terminal") to true
+    end tell
+    delay 0.2
+    tell application "System Events"
+        tell process "Terminal"
+            keystroke "v" using command down
+            delay 0.3
+            key code 36
+        end tell
+    end tell
+    return "OK"
+end run
 APPLESCRIPT
 )
             echo "$(date) — forwarded ROWID=$ROWID: $CLEAN_TEXT [applescript: $ACTIVATED]"

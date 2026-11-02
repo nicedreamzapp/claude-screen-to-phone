@@ -37,10 +37,16 @@ fi
 SEND_FILE=$(realpath "$SEND_FILE")
 echo "Sending via iMessage..."
 
-osascript << APPLESCRIPT
+# Path and buddy go in as arguments; the heredoc is quoted so the shell expands
+# nothing inside it. A quote in a filename would otherwise close the AppleScript
+# string and run whatever followed.
+osascript - "$SEND_FILE" "$BUDDY" <<'APPLESCRIPT'
+on run argv
+set filePath to item 1 of argv
+set buddyID to item 2 of argv
 tell application "Finder"
     activate
-    set theFile to (POSIX file "$SEND_FILE") as alias
+    set theFile to (POSIX file filePath) as alias
     select theFile
     delay 0.3
 end tell
@@ -50,7 +56,7 @@ tell application "System Events"
     end tell
 end tell
 delay 0.5
-do shell script "open 'imessage://$BUDDY'"
+do shell script "open " & quoted form of ("imessage://" & buddyID)
 delay 3
 tell application "System Events"
     tell process "Messages"
@@ -65,6 +71,7 @@ tell application "System Events"
 end tell
 delay 0.3
 tell application "Brave Browser" to activate
+end run
 APPLESCRIPT
 
 [ $? -eq 0 ] && echo "Sent: $SEND_FILE" || { echo "Send failed — check Messages app permissions"; exit 1; }

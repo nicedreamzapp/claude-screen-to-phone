@@ -11,8 +11,14 @@ CONFIG="${STP_CONFIG:-$HOME/.claude/screen-to-phone-config.sh}"
 # shellcheck disable=SC1090
 [ -f "$CONFIG" ] && source "$CONFIG"
 DB="$HOME/Library/Messages/chat.db"
-BUDDY_MATCH="%${APPLE_ID_EMAIL:-$BUDDY}%"
-PHONE_MATCH="%$(echo "$BUDDY" | tr -d '+')%"
+# Owner identifiers, matched EXACTLY. A LIKE '%...%' would also match any other
+# sender whose chat identifier merely contains the address, and that sender's
+# messages would be accepted as the owner's.
+# Single quotes are doubled so a value can never close the SQL string literal.
+sql_quote() { printf '%s' "${1//\'/\'\'}"; }
+BUDDY_ID="$(sql_quote "${APPLE_ID_EMAIL:-$BUDDY}")"
+BUDDY_PHONE="$(sql_quote "$(printf '%s' "$BUDDY" | tr -d '+')")"
+OWNER_SQL="(lower(c.chat_identifier) = lower('$BUDDY_ID') OR replace(c.chat_identifier, '+', '') = '$BUDDY_PHONE')"
 
 QUESTION="$1"
 TIMEOUT=${2:-600}
@@ -29,7 +35,7 @@ BEFORE_ROWID=$(sqlite3 "$DB" "
     FROM message m
     JOIN chat_message_join cmj ON m.ROWID = cmj.message_id
     JOIN chat c ON cmj.chat_id = c.ROWID
-    WHERE (c.chat_identifier LIKE '$BUDDY_MATCH' OR c.chat_identifier LIKE '$PHONE_MATCH')
+    WHERE $OWNER_SQL
 " 2>/dev/null || echo "0")
 
 # Send the question

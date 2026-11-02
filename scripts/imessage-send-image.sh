@@ -22,11 +22,18 @@ case "$EXT" in
     *)          FILETYPE="«class PNGf»" ;;
 esac
 
-osascript << APPLESCRIPT
+# The file path and buddy id come in as ARGUMENTS so a quote in either cannot
+# close an AppleScript string and run code. The heredoc stays unquoted only so
+# $FILETYPE expands - that value is a fixed AppleScript class literal chosen by
+# the `case` statement above, never user input.
+osascript - "$FILE" "$BUDDY" << APPLESCRIPT
+on run argv
+set filePath to item 1 of argv
+set buddyID to item 2 of argv
 set prevApp to path to frontmost application as text
 
 -- Copy image to clipboard
-set the clipboard to (read POSIX file "$FILE" as $FILETYPE)
+set the clipboard to (read POSIX file filePath as $FILETYPE)
 delay 0.3
 
 -- Pre-position: launch Messages hidden and move any existing window off-screen
@@ -45,7 +52,7 @@ end tell
 delay 0.2
 
 -- Now open the conversation — window is already off-screen
-do shell script "open 'imessage://$BUDDY'"
+do shell script "open " & quoted form of ("imessage://" & buddyID)
 delay 1.5
 
 -- Make sure the new window is also off-screen
@@ -70,6 +77,7 @@ end tell
 tell application "System Events" to set visible of process "Messages" to false
 delay 0.1
 activate application prevApp
+end run
 APPLESCRIPT
 
 echo "Sent: $FILE"
